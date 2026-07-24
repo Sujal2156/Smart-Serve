@@ -19,9 +19,14 @@ const getRestaurant = asyncHandler(async (req, res, next) => {
 
     const restaurantCount = restaurants.length
 
-    if (restaurantCount === 0) {
-        return next(new ApiError(404, "No restaurants found"))
-    }
+    // if (restaurantCount === 0) {
+    //     return next(new ApiError(404, "No restaurants found"))
+    // }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, { restaurants, restaurantCount, resultPerPage }, 
+            restaurantCount === 0 ? "No restaurants found" : "Restaurant fetched successfully."))
 
     return res
         .status(200)
@@ -120,10 +125,13 @@ const addRestaurantReview = asyncHandler(async (req, res, next) => {
     }
 
     // Find user by ID and check existence
+    
     const user = await User.findById(userId);
     if (!user) {
        return next(new ApiError(404, "User not found"))
     }
+
+
 
     const restaurant = await Restaurant.findById(resid);
     if (!restaurant) {
