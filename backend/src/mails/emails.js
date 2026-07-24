@@ -2,18 +2,25 @@ import nodemailer from "nodemailer";
 import { ApiError } from "../utils/ApiError.js";
 import { PASSWORD_RESET_REQUEST, PASSWORD_RESET_SUCCESS, VERIFICATION_EMAIL, WELCOME_EMAIL } from "./emailTemplate.js";
 
-// Naya aur simple transporter (App Password ke sath)
-const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || "gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
+// Lazy transporter - dotenv.config() poora load hone ke baad hi banega
+let transporter = null;
 
-const sendVerificationMail = async (recipient, username, verificationToken, next) => {
+const getTransporter = () => {
+    if (!transporter) {
+        transporter = nodemailer.createTransport({
+            service: process.env.EMAIL_SERVICE || "gmail",
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+    }
+    return transporter;
+};
+
+const sendVerificationMail = async (recipient, username, verificationToken) => {
     try {
-        await transporter.sendMail({
+        await getTransporter().sendMail({
             from: process.env.SENDER_NAME,
             to: recipient,
             subject: "Verify your email",
@@ -22,13 +29,13 @@ const sendVerificationMail = async (recipient, username, verificationToken, next
         });
     } catch (err) {
         console.log(err);
-        return next(new ApiError(500, "Error while sending verification email"));
+        throw new ApiError(500, "Error while sending verification email");
     }
 }
 
-const sendWelcomeMail = async (recipient, username, next) => {
+const sendWelcomeMail = async (recipient, username) => {
     try {
-        await transporter.sendMail({
+        await getTransporter().sendMail({
             from: process.env.SENDER_NAME,
             to: recipient,
             subject: "Welcome to SmartServe",
@@ -36,13 +43,13 @@ const sendWelcomeMail = async (recipient, username, next) => {
         });
     } catch (err) {
         console.log(err);
-        return next(new ApiError(500, "Error while sending welcome email"));
+        throw new ApiError(500, "Error while sending welcome email");
     }
 }
 
-const sendPasswordResetEmail = async (email, name, resetURL, next) => {
+const sendPasswordResetEmail = async (email, name, resetURL) => {
     try {
-        await transporter.sendMail({
+        await getTransporter().sendMail({
             from: process.env.SENDER_NAME,
             to: email,
             subject: "Reset your password",
@@ -50,21 +57,21 @@ const sendPasswordResetEmail = async (email, name, resetURL, next) => {
         });
     } catch (err) {
         console.log(err);
-        return next(new ApiError(500, `Error while sending mail: ${err}`));
+        throw new ApiError(500, `Error while sending mail: ${err}`);
     }
 }
 
-const sendResetSuccessMail = async (email, name, next) => {
+const sendResetSuccessMail = async (email, name) => {
     try {
-        await transporter.sendMail({
+        await getTransporter().sendMail({
             from: process.env.SENDER_NAME,
-            to: email, // Yahan 'scan&Dine' ki galti theek kar di hai
+            to: email,
             subject: "Password Reset Successful",
             html: PASSWORD_RESET_SUCCESS.replace("{userName}", name),
         });
     } catch (err) {
         console.log(err);
-        return next(new ApiError(500, `Error while sending reset success mail: ${err}`));
+        throw new ApiError(500, `Error while sending reset success mail: ${err}`);
     }
 }
 
