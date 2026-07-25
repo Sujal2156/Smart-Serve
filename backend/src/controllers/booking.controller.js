@@ -178,11 +178,9 @@ const getBookingsByUserId = asyncHandler(async (req, res, next) => {
 });
 
 
-// Admin access   @Get all bookings
 const getAllBookings = asyncHandler(async (req, res, next) => {
     const { resid } = req.params;
     const { date } = req.query;
-    //console.log(`Fetching bookings for restaurant: ${resid}`);
 
     const query = { restaurantId: resid };
 
@@ -197,16 +195,11 @@ const getAllBookings = asyncHandler(async (req, res, next) => {
 
     const allBookings = await Booking.find(query);
 
-    if (allBookings.length === 0) {
-        return next(new ApiError(404, "No bookings found"))
-    }
-
-    // Return an empty array instead of an error if no bookings are found
+    // Empty array bhi 200 ke saath return hoga, 404 nahi
     return res
         .status(200)
-        .json(new ApiResponse(200, allBookings, "All bookings fetched successfully"));
+        .json(new ApiResponse(200, allBookings, allBookings.length === 0 ? "No bookings found" : "All bookings fetched successfully"));
 });
-
 
 
 export {
