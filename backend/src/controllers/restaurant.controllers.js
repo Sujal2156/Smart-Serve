@@ -78,7 +78,8 @@ const registerRestaurant = asyncHandler(async (req, res, next) => {
         return next(new ApiError(409, "Restaurant already exists"))
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path
+    // const avatarLocalPath = req.files?.avatar[0]?.path
+    const avatarLocalPath = req.files?.avatar?.[0]?.path
 
     if (!avatarLocalPath) {
         return next(new ApiError(401, "Avatar required"))
