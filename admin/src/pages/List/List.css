@@ -1,0 +1,554 @@
+.list-card {
+  position: relative;
+  width: 100%;
+  max-width: 200px; /* Adjust as per your design */
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+  transition: transform 0.3s ease;
+}
+
+.list-card:hover {
+  transform: scale(1.05); /* Slight zoom effect */
+}
+
+.remove-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: red;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.list-card:hover .remove-btn {
+  opacity: 1;
+}
+
+.list-card-image img {
+  width: 100%;
+  height: auto;
+  border-bottom: 2px solid #ddd;
+}
+
+.list-card-content {
+  padding: 15px;
+}
+
+.list-card-content h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.list-card-content .category {
+  font-size: 14px;
+  color: gray;
+}
+
+.list-card-content .price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.veg-icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.switch input[type="checkbox"] {
+  display: none;
+}
+
+.switch span {
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+  background-color: #ccc;
+  border-radius: 50px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.switch input[type="checkbox"]:checked + span {
+  background-color: #28a745;
+}
+
+.switch span:before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.switch input[type="checkbox"]:checked + span:before {
+  transform: translateX(14px);
+}
+
+.pagination-controls button {
+  padding: 10px 15px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination-controls button:hover {
+  background-color: #218838;
+}
+
+.pagination-controls button:disabled {
+  background-color: #555;
+}
+
+
+/* Container styling for the entire list component */
+.list-container {
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  color: #fff;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Background video styling */
+.background-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  opacity: 0.5;
+  filter: blur(3px);
+}
+
+/* Overlay for content above the background video */
+.content-overlay {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Header styling */
+.list-header h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: whitesmoke;
+}
+
+.list-header p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  color: #ddd;
+}
+
+/* Filter buttons */
+.filter-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.filter-buttons button {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  margin: 0 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-radius: 5px;
+}
+
+.filter-buttons button:hover {
+  background-color: #555;
+}
+
+.all-btn {
+  background-color: #4caf50; /* Green for 'All' */
+}
+
+.veg-btn {
+  background-color: #8bc34a; /* Light green for 'Veg' */
+}
+
+.non-veg-btn {
+  background-color: #f44336; /* Red for 'Non-Veg' */
+}
+
+/* Grid for cards */
+.list-grid {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding: 10px 0;
+  scroll-snap-type: x mandatory;
+}
+
+/* Individual card styling with scroll snapping */
+.list-card {
+  min-width: 250px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.list-card:hover {
+  transform: scale(1.05);
+}
+
+.list-card-image img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.list-card-content h3 {
+  font-size: 1.5rem;
+  margin: 10px 0;
+  color: #fff;
+}
+
+.list-card-content .category {
+  color: #ddd;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.list-card-content .price {
+  font-size: 1.2rem;
+  color: #ffdd57;
+  font-weight: bold;
+}
+
+.availability-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Adjust the gap as needed */
+}
+
+.availability-toggle span {
+  font-size: 16px; /* Adjust font size if needed */
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 18px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #4CAF50;
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
+}
+
+.list-card {
+  position: relative;
+  /* other styles */
+}
+
+/* Edit Button Styling */
+.edit-btn {
+  position: absolute;
+  top: 320px;
+  right: 40px;
+  display: none;
+
+  color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+
+/* Display the edit button on hover */
+.list-card:hover .edit-btn {
+  display: block;
+}
+
+/* Modal Background Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+/* Show modal overlay when active */
+.modal-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Edit Modal Styling */
+.edit-modal {
+  position: relative;
+  width: 80%;
+  max-width: 500px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 20px 30px;
+  border-radius: 12px;
+  box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px) saturate(180%);
+  animation: slideDown 0.5s ease forwards;
+  opacity: 0;
+  transform: translateY(-50px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.modal-overlay.show .edit-modal {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animation for modal appearance */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal Content */
+.edit-modal-content h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: black;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.edit-modal-content label {
+  display: block;
+  margin: 10px 0 5px;
+  color: #555;
+  font-weight: 500;
+}
+
+.edit-modal-content input[type="text"],
+.edit-modal-content input[type="number"],
+.edit-modal-content textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  background: black;
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.edit-modal-content input[type="text"]:focus,
+.edit-modal-content input[type="number"]:focus,
+.edit-modal-content textarea:focus {
+  border-color: #007bff;
+}
+
+/* Button Styles */
+.edit-modal-content button {
+  margin: 15px 10px 0;
+  padding: 10px 18px;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.edit-modal-content button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.edit-modal-content button:last-child {
+  background-color: #ccc;
+  color: #333;
+}
+.edit-modal-content button:last-child:hover {
+  background-color: #aaa;
+}
+
+/* Close Button */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-modal.glass-effect {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 15px;
+  padding: 20px;
+  width: 80%;
+  max-width: 500px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.edit-modal-content label {
+  display: block;
+  margin: 10px 0;
+  color: black;
+}
+
+.save-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.save-btn:hover {
+  background-color: #45a049;
+}
+
+.close-modal {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #fff;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  cursor: pointer;
+}
+
+
+/* Updated styling for search input area */
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50px; 
+  gap: 5px; /* Space between icon and input */
+  padding: 10px 15px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+
+  max-width: 820px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+
+}
+
+.search-bar:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #fff;
+  font-size: 1rem;
+  caret-color: #ff6b6b;
+}
+
+.search-bar input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.search-icon {
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.search-icon:hover {
+  color: #ff6b6b;
+}
