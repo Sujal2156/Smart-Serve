@@ -30,12 +30,12 @@ const getMenuById = asyncHandler(async (req, res, next) => {
 
     const menu = await Menu.findOne({ _id: itemid, restaurantId: resid })
 
-    if (menu.restaurantId.toString() !== resid) {
-        return next(new ApiError(401, "Not accessible"))
-    }
-
     if (!menu) {
         return next(new ApiError(404, "Item does not found"))
+    }
+
+    if (menu.restaurantId.toString() !== resid) {
+        return next(new ApiError(401, "Not accessible"))
     }
 
     return res
@@ -48,16 +48,14 @@ const createMenuItem = asyncHandler(async (req, res, next) => {
     const { itemName, price, description, category, isVeg, isAvailable } = req.body
 
     if (
-        [itemName, price, description, category, isVeg].some((field) => field?.trim() === "")
+        !itemName || !description || !category || price === undefined || price === null || String(price).trim() === ""
     ) { return next(new ApiError(400, "All fields are required")) }
 
-    let imageLocalPath = []
-    imageLocalPath = req.files.image
-    //console.log(imageLocalPath)
-
-    if (!imageLocalPath) {
-        return next(new ApiError(401, "Image is required"))
+    if (isNaN(price) || Number(price) <= 0) {
+        return next(new ApiError(400, "Price must be a positive number"));
     }
+
+    let imageLocalPath = req.files?.image || []
     let imageArray = []
     for (let i = 0; i < imageLocalPath.length; i++) {
         let imageLinks = imageLocalPath[i]?.path;
@@ -105,7 +103,7 @@ const updateMenuItem = asyncHandler(async (req, res, next) => {
         return next(new ApiError(404, "Not found"))
     }
 
-    const menuItem = await Menu.findByIdAndUpdate({ restaurantId: resid, _id: itemid }, {
+    const menuItem = await Menu.findOneAndUpdate({ restaurantId: resid, _id: itemid }, {
         $set: {
             itemName,
             price,
@@ -143,7 +141,7 @@ const updateItemToVeg = asyncHandler(async (req, res, next) => {
     }
 
     // Update the menu item with the new availability status
-    const menuItem = await Menu.findByIdAndUpdate(
+    const menuItem = await Menu.findOneAndUpdate(
         { restaurantId: resid, _id: itemid },
         { $set: { isAvailable } },
         { new: true }
@@ -158,7 +156,7 @@ const updateItemToVeg = asyncHandler(async (req, res, next) => {
 
 const deleteMenuItem = asyncHandler(async (req, res) => {
     const { resid, itemid } = req.params
-    const menuItem = await Menu.findByIdAndDelete({ restaurnatId: resid, _id: itemid })
+    const menuItem = await Menu.findOneAndDelete({ restaurantId: resid, _id: itemid })
 
     if (!menuItem) {
         throw new ApiError(400, "Item not found")
