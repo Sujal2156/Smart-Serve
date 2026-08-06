@@ -36,7 +36,7 @@ const url = import.meta.env.VITE_API_URL_BASE
           <img src={assets.rating_starts} alt="Rating" />
         </div>
         <p className="food-item-desc">{description}</p>
-        <p className="food-item-price">${price}</p>
+        <p className="food-item-price">₹{price}</p>
       </div>
     </div>
   );

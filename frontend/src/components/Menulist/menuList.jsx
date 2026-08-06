@@ -208,7 +208,7 @@ const MenuList = ({ isOpen, onClose, restaurantId }) => {
                       variant="subtitle1"
                       className="font-bold text-black dark:text-white"
                     >
-                      ${item.price.toFixed(2)}
+                      ₹{item.price.toFixed(2)}
                     </Typography>
                     <Typography
                       variant="caption"
