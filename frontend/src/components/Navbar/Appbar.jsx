@@ -72,11 +72,6 @@ const Appbar = ({ setShowLogin }) => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              {/* <img
-                src={assets.app || "/placeholder.svg?height=40&width=120&text=SmartServe"}
-                alt="SmartServe"
-                className="h-8 md:h-10 hover:scale-105 transition-transform duration-200"
-              /> */}
               <p className="text-xl font-semibold text-[#ff6347] ">SmartServe</p>
             </Link>
           </div>
@@ -122,15 +117,11 @@ const Appbar = ({ setShowLogin }) => {
             </button>
 
             {/* QR Scanner */}
-            <button className="p-2 text-gray-600 hover:text-orange-500 transition-colors">
-              {/* <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 12v4m6-4h.01M12 8h.01"
-                />
-              </svg> */}
+            <button 
+              onClick={() => navigate("/explore")}
+              title="Scan Table QR Code / Explore Restaurant Menu"
+              className="p-2 text-gray-600 hover:text-orange-500 transition-colors"
+            >
               <QrCodeIcon/>
             </button>
 

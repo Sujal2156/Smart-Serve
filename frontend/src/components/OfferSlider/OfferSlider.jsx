@@ -252,7 +252,7 @@ const OfferSlider = () => {
               <div className="relative group cursor-pointer h-full">
                 <div className="aspect-[16/9] overflow-hidden rounded-lg bg-gray-200 shadow-lg">
                   <img
-                    src={offer.imageUrl || "/placeholder.svg?height=200&width=400&text=Special+Offer"}
+                    src={offer.imageUrl || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600"}
                     alt={offer.alt}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
@@ -335,7 +335,7 @@ const OfferSlider = () => {
               <div key={`grid-${offer.id}`} className="relative group cursor-pointer">
                 <div className="aspect-[16/9] overflow-hidden rounded-lg bg-gray-200 shadow-lg">
                   <img
-                    src={offer.imageUrl || "/placeholder.svg?height=200&width=400&text=Special+Offer"}
+                    src={offer.imageUrl || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600"}
                     alt={offer.alt}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
