@@ -27,10 +27,10 @@ const generateAccessAndRefreshToken = async (userId) => {
     await user.save({ validateBeforeSave: false });
     return { accessToken, refreshToken };
   } catch (err) {
-    return next(new ApiError(
+    throw new ApiError(
       500,
-      "Something went wrong while generating acess and refresh token"
-    ))
+      "Something went wrong while generating access and refresh token"
+    );
   }
 };
 
@@ -40,6 +40,10 @@ const registerUser = asyncHandler(async (req, res, next) => {
 
   if ([fullName, email, password].some((field) => field?.trim() === "")) {
     return next(new ApiError(400, "All fields are required"));
+  }
+
+  if (password.length < 8 || password.length > 14) {
+    return next(new ApiError(400, "Password must be between 8 and 14 characters"));
   }
 
   //Check  is user already exists
@@ -68,11 +72,15 @@ const registerUser = asyncHandler(async (req, res, next) => {
     return next(new ApiError(504, "Something went wrong while registering user"));
   }
 
-  await sendVerificationMail(createdUser.email, createdUser.fullName, verificationToken)
+  try {
+    await sendVerificationMail(createdUser.email, createdUser.fullName, verificationToken);
+  } catch (emailErr) {
+    console.log("Verification email send warning:", emailErr?.message);
+  }
 
   return res
     .status(201)
-    .json(new ApiResponse(201, createdUser, "User registerd successfully."));
+    .json(new ApiResponse(201, createdUser, "User registered successfully."));
 });
 
 // verify Email
@@ -93,7 +101,11 @@ const verifyEmail = asyncHandler(async (req, res, next) => {
   user.verificationTokenExpiry = undefined
 
   await user.save({ validateBeforeSave: false })
-  await sendWelcomeMail(user.email, user.fullName)
+  try {
+    await sendWelcomeMail(user.email, user.fullName);
+  } catch (emailErr) {
+    console.log("Welcome email send warning:", emailErr?.message);
+  }
 
   return res
     .status(200)
@@ -182,13 +194,17 @@ const refreshAccessToken = asyncHandler(async (req, res, next) => {
 const changeCurrentPassword = asyncHandler(async (req, res, next) => {
   const { oldPassword, newPassword } = req.body;
 
+  if (!newPassword || newPassword.length < 8 || newPassword.length > 14) {
+    return next(new ApiError(400, "New password must be between 8 and 14 characters"));
+  }
+
   const user = await User.findById(req.user?._id);
 
   const isPasswordValid = await user.isPasswordCorrect(oldPassword);
   if (!isPasswordValid) { return next(new ApiError(401, "Invalid old password")) }
 
   user.password = newPassword;
-  await user.save({ validateBeforeSave: false });
+  await user.save();
 
   return res
     .status(200)
@@ -245,11 +261,15 @@ const resetPassword = asyncHandler(async (req, res, next) => {
   const { password, confirmPassword } = req.body
   if (password !== confirmPassword) { return next(new ApiError(400, "password does not match")) }
 
+  if (!password || password.length < 8 || password.length > 14) {
+    return next(new ApiError(400, "Password must be between 8 and 14 characters"));
+  }
+
   user.password = password
   user.passwordResetToken = undefined
   user.passwordResetTokenExpiry = undefined
 
-  await user.save({ validateBeforeSave: false })
+  await user.save()
   await sendResetSuccessMail(user.email, user.fullName)
 
   return res
