@@ -10,7 +10,7 @@ const RestaurantHeader = ({ restaurant }) => {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: `url(${restaurant.avatar || "/placeholder.svg?height=400&width=800&text=Restaurant"})`,
+          backgroundImage: `url(${restaurant.avatar || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800"})`,
         }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>

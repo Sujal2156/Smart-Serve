@@ -14,7 +14,17 @@ const MenuSection = ({ menu, restaurantId }) => {
   const filteredMenu = selectedCategory === "all" ? menu : menu.filter((item) => item.category === selectedCategory)
 
   const handleAddToCart = (item) => {
-    dispatch(addToCart({ item, qty: 1 }))
+    const formattedItem = {
+      id: item._id || item.id,
+      name: item.itemName || item.name,
+      description: item.description,
+      price: item.price,
+      image: Array.isArray(item.image) ? item.image[0]?.url || "" : item.image || "",
+      category: item.category,
+      isVeg: item.isVeg,
+      isAvailable: item.isAvailable,
+    };
+    dispatch(addToCart({ item: formattedItem, qty: 1, resId: restaurantId || item.restaurantId }));
   }
 
   return (
@@ -47,7 +57,7 @@ const MenuSection = ({ menu, restaurantId }) => {
             <div className="h-48 bg-gray-200">
               {item.images && item.images.length > 0 ? (
                 <img
-                  src={item.images[0].url || "/placeholder.svg?height=200&width=300&text=Food+Item"}
+                  src={item.images[0].url || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600"}
                   alt={item.name}
                   className="w-full h-full object-cover"
                 />
