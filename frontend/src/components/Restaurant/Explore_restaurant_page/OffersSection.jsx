@@ -25,7 +25,7 @@ const OffersSection = ({ offers }) => {
         {/* Offer Display */}
         <div className="relative h-64 md:h-80">
           <img
-            src={offers[currentOffer].image || "/placeholder.svg?height=300&width=600&text=Special+Offer"}
+            src={offers[currentOffer].image || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800"}
             alt={offers[currentOffer].name}
             className="w-full h-full object-cover"
           />

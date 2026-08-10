@@ -16,7 +16,7 @@ const ChefProfile = () => {
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-300">
               <div className="relative">
                 <img
-                  src="/placeholder.svg?height=300&width=300&text=Chef+Marco"
+                  src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=600"
                   alt="Chef Marco Rodriguez"
                   className="w-full h-64 object-cover"
                 />
@@ -57,7 +57,7 @@ const ChefProfile = () => {
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-300">
               <div className="relative">
                 <img
-                  src="/placeholder.svg?height=300&width=300&text=Chef+Sarah"
+                  src="https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=600"
                   alt="Chef Sarah Chen"
                   className="w-full h-64 object-cover"
                 />
@@ -98,7 +98,7 @@ const ChefProfile = () => {
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-all duration-300">
               <div className="relative">
                 <img
-                  src="/placeholder.svg?height=300&width=300&text=Chef+David"
+                  src="https://images.unsplash.com/photo-1607631568010-a87245c0daf8?w=600"
                   alt="Chef David Thompson"
                   className="w-full h-64 object-cover"
                 />
