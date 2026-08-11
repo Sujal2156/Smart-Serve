@@ -93,6 +93,16 @@ function RestaurantCard({
               <box-icon name="x-square" type="solid" color="black"></box-icon>
             </button>
             <div id="qr-reader" className="w-full h-full"></div>
+            <button
+              onClick={(event) => {
+                event.stopPropagation();
+                setIsScannerActive(false);
+                navigate(`/restaurant/${_id}/view`);
+              }}
+              className="w-full mt-3 py-2 bg-[#ff6347] text-white rounded-lg font-medium text-xs hover:bg-red-600 shadow transition-colors flex items-center justify-center space-x-1"
+            >
+              <span>⚡ Simulate QR Scan (Live Demo)</span>
+            </button>
           </div>
         </div>
       )}

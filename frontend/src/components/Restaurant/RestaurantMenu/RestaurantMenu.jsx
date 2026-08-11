@@ -83,7 +83,7 @@ const RestaurantMenu = () => {
                 </p>
               </div>
               <p className="line-clamp-3">{item.description}</p>
-              <p className="menu-price">Price: ${item.price}</p>
+              <p className="menu-price">Price: ₹{item.price}</p>
               <p
                 className={`menu-availability ${
                   item.isAvailable ? "available" : "unavailable"
