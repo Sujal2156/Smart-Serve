@@ -7,12 +7,10 @@ import crypto from "crypto"
 
 // generate unique booking number
 const generateBookingToken = async () => {
-
     try {
         let unique = false
         let token
         while (!unique) {
-
             token = crypto.randomInt(10000000, 100000000)
             const existingBooking = await Booking.findOne({ bookingToken: token })
 
@@ -22,8 +20,7 @@ const generateBookingToken = async () => {
         }
         return token
     } catch (err) {
-        //console.log("order no generation err", err)
-        return next(new ApiError(500, "Something went wrong while generating order number"))
+        throw new ApiError(500, "Something went wrong while generating booking number")
     }
 }
 
@@ -37,10 +34,20 @@ const bookTable = asyncHandler(async (req, res, next) => {
         [name, reservationDate, reservationTime, contactPhone, contactEmail].some((field) => field?.trim() === "")
     ) { return next(new ApiError(400, "All fields are required")) }
 
-    const existedBooking = await Booking.findOne({ contactEmail, contactPhone })
+    if (!numGuests || numGuests < 1 || numGuests > 20) {
+        return next(new ApiError(400, "Number of guests must be between 1 and 20"));
+    }
+
+    const existedBooking = await Booking.findOne({
+        restaurantId: resid,
+        reservationDate,
+        reservationTime,
+        status: { $ne: 'Cancelled' },
+        $or: [{ contactEmail }, { contactPhone }, { user: req.user._id }]
+    })
 
     if (existedBooking) {
-        return next(new ApiError(409, "You already have an existing booking"))
+        return next(new ApiError(409, "You already have an active booking for this date and time slot"))
     }
 
     const bookingToken = await generateBookingToken()

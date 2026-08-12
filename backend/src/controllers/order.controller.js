@@ -5,45 +5,70 @@ import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import crypto from "crypto"
 
-// generate unique booking number
+// generate unique order number
 const generateOrderToken = async () => {
-
     try {
         let unique = false
         let token
         while (!unique) {
-
             token = crypto.randomInt(10000000, 100000000)
-            const existingBooking = await Order.findOne({ bookingToken: token })
+            const existingOrder = await Order.findOne({ orderNo: token })
 
-            if (!existingBooking) {
+            if (!existingOrder) {
                 unique = true
             }
         }
         return token
     } catch (err) {
-        //console.log("booking no generation err", err)
-        return next(new ApiError(500, "Something went wrong while generating booking number"))
+        throw new ApiError(500, "Something went wrong while generating order number")
     }
 }
 
 // Place order controller   @CUSTOMER
 const placeOrder = asyncHandler(async (req, res, next) => {
     const { resid } = req.params
-    const { items, taxPrice, totalPrice, serviceCharge } = req.body
+    const { items, taxPrice, totalPrice, serviceCharge, restaurantId } = req.body
 
-    if (items && items.length === 0) {
-        return next(new ApiError(400, "No items in order"))
+    let targetResId = resid && resid !== "undefined" && resid !== "null" ? resid : restaurantId;
+
+    if (!targetResId && items && items.length > 0) {
+        const menuId = items[0].menu || items[0].id || items[0]._id;
+        if (menuId) {
+            const menuItem = await Menu.findById(menuId);
+            if (menuItem) {
+                targetResId = menuItem.restaurantId;
+            }
+        }
+    }
+
+    if (!targetResId) {
+        const defaultRest = await Restaurant.findOne();
+        if (defaultRest) {
+            targetResId = defaultRest._id;
+        }
+    }
+
+    if (!targetResId) {
+        return next(new ApiError(400, "Restaurant ID is required to place order"));
+    }
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+        return next(new ApiError(400, "No valid items in order"))
+    }
+
+    const hasInvalidItems = items.some(item => !item.quantity || Number(item.quantity) <= 0 || (item.price !== undefined && Number(item.price) < 0));
+    if (hasInvalidItems) {
+        return next(new ApiError(400, "Invalid item quantity or price in order"));
     }
 
     const orderNo = await generateOrderToken()
     const order = await Order.create({
         user: req.user?._id,
-        restaurantId: resid,
+        restaurantId: targetResId,
         orderNo,
         items: items.map((item) => ({
             ...item,
-            menu: item.menu,
+            menu: item.menu || item.id || item._id,
         })),
         taxPrice,
         totalPrice,
@@ -51,10 +76,10 @@ const placeOrder = asyncHandler(async (req, res, next) => {
     })
 
     const updatedRestaurant = await Restaurant.findByIdAndUpdate(
-        resid,
+        targetResId,
         { $push: { orders: order._id } },
-        { new: true,}
-      );
+        { new: true }
+    );
 
     const placedOrder = await Order.findById(order._id)
 
@@ -62,9 +87,6 @@ const placeOrder = asyncHandler(async (req, res, next) => {
         return next(new ApiError(500, "Something went wrong while placing order"))
     }
 
-    if (!updatedRestaurant) {
-        return next(new ApiError(500, "Failed to associate order with the restaurant"));
-      }
     return res
         .status(200)
         .json(new ApiResponse(200, {placedOrder, updatedRestaurant}, "Order placed successfully"))
@@ -100,13 +122,16 @@ const getOrderById = asyncHandler(async (req, res, next) => {
 
 // Get All Orders           @ADMIN only
 const getOrders = asyncHandler(async (req, res, next) => {
-
-    const orders = await Order.find({ restaurantId: req.user?.restaurantId })
-
-
-    if (!orders && orders.length === 0) {
-        return next(new ApiError(404, "Order not found"))
+    const resId = req.params.resid || req.user?.restaurantId;
+    
+    let filter = {};
+    if (resId && resId !== "undefined") {
+        filter = { restaurantId: resId };
+    } else if (req.user?.restaurantId) {
+        filter = { restaurantId: req.user.restaurantId };
     }
+
+    const orders = await Order.find(filter).sort({ createdAt: -1 });
 
     return res
         .status(200)
