@@ -58,7 +58,7 @@ const Cart = () => {
               <div key={index} className="cart-items-title cart-items-item">
                 <img src={food.item.image} alt={food.item.name} />
                 <p>{food.item.name}</p>
-                <p>&#36;{food.item.price}</p>
+                <p>₹{food.item.price}</p>
                 <div className="cart-quantity-controls">
                   <button
                     onClick={() => decrementQuantityHandler(food.item)}
@@ -74,7 +74,7 @@ const Cart = () => {
                     <box-icon name="plus-square" type="solid"></box-icon>
                   </button>
                 </div>
-                <p>&#36;{(food.item.price * food.qty).toFixed(2)}</p>
+                <p>₹{(food.item.price * food.qty).toFixed(2)}</p>
                 <p
                   onClick={() => removeFromCartHandler(food.item)}
                   className="cross "
@@ -102,22 +102,22 @@ const Cart = () => {
             <div>
               <div className="cart-totals-details">
                 <p>Subtotal</p>
-                <p>&#36;{cart.itemsPrice}</p>
+                <p>₹{cart.itemsPrice}</p>
               </div>
               <hr />
               <div className="cart-totals-details">
                 <p>Service Charge</p>
-                <p>&#36;{cart.serviceCharge}</p>
+                <p>₹{cart.serviceCharge}</p>
               </div>
               <hr />
               <div className="cart-totals-details">
                 <p>Tax</p>
-                <p>&#36;{cart.taxPrice}</p>
+                <p>₹{cart.taxPrice}</p>
               </div>
               <hr />
               <div className="cart-totals-details">
                 <b>Total</b>
-                <b>&#36;{cart.totalPrice}</b>
+                <b>₹{cart.totalPrice}</b>
               </div>
             </div>
             <button onClick={() => navigate("/order")}>

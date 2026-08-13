@@ -81,7 +81,7 @@ export default function PlaceOrder() {
       totalPrice: cart.totalPrice,
       taxPrice: cart.taxPrice,
       serviceCharge: cart.serviceCharge,
-      restaurantId: cartItems[0]?.resId || "",
+      restaurantId: cart.restaurantId || cartItems[0]?.resId || cartItems[0]?.item?.restaurantId || localStorage.getItem("restaurantId") || "",
     }));
   }, [cartItems, cart]);
 
@@ -140,6 +140,20 @@ export default function PlaceOrder() {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
+    if (!orderData.name?.trim()) {
+      toast.error("Please enter your name");
+      return;
+    }
+    if (!orderData.tableNumber?.trim()) {
+      toast.error("Please enter your table number");
+      return;
+    }
+    if (!cartItems || cartItems.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
     try {
       const orderPayload = {
         ...orderData,
@@ -153,6 +167,7 @@ export default function PlaceOrder() {
       const res = await createOrder(orderPayload).unwrap();
       setOrderId(res.data.placedOrder._id);
       toast.success(`Order placed successfully!`);
+      dispatch(clearAllCartItems());
       setOrderPlaced(true);
       setShowAddItemsButton(true);
       localStorage.setItem("orderPlaced", JSON.stringify(true));
@@ -278,7 +293,7 @@ export default function PlaceOrder() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <Typography color="blue-gray">Subtotal</Typography>
-                <Typography color="blue-gray">${cart.totalPrice}</Typography>
+                <Typography color="blue-gray">₹{cart.totalPrice}</Typography>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between">
@@ -286,7 +301,7 @@ export default function PlaceOrder() {
                   Total
                 </Typography>
                 <Typography color="blue-gray" className="font-bold">
-                  ${cart.totalPrice}
+                  ₹{cart.totalPrice}
                 </Typography>
               </div>
             </div>

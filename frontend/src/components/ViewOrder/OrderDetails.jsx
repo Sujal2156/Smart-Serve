@@ -78,9 +78,9 @@ const InvoicePDF = ({ order = {} }) => {
               <View key={index} style={invoiceStyles.itemRow}>
                 <Text style={invoiceStyles.itemText}>{item.name || "Unnamed Item"}</Text>
                 <Text style={invoiceStyles.itemText}>Qty: {item.quantity || 0}</Text>
-                <Text style={invoiceStyles.itemPrice}>Price: ${item.price || "0.00"}</Text>
+                <Text style={invoiceStyles.itemPrice}>Price: ₹{item.price || "0.00"}</Text>
                 <Text style={invoiceStyles.itemPrice}>
-                  Total: ${(item.price * item.quantity) || "0.00"}
+                  Total: ₹{(item.price * item.quantity) || "0.00"}
                 </Text>
               </View>
             ))
@@ -94,19 +94,19 @@ const InvoicePDF = ({ order = {} }) => {
           <Text style={invoiceStyles.subheader}>Summary</Text>
           <View style={invoiceStyles.summaryRow}>
             <Text style={invoiceStyles.itemText}>Subtotal:</Text>
-            <Text style={invoiceStyles.itemPrice}>${subtotal}</Text>
+            <Text style={invoiceStyles.itemPrice}>₹{subtotal}</Text>
           </View>
           <View style={invoiceStyles.summaryRow}>
             <Text style={invoiceStyles.itemText}>Service Charge:</Text>
-            <Text style={invoiceStyles.itemPrice}>${serviceCharge}</Text>
+            <Text style={invoiceStyles.itemPrice}>₹{serviceCharge}</Text>
           </View>
           <View style={invoiceStyles.summaryRow}>
             <Text style={invoiceStyles.itemText}>GST:</Text>
-            <Text style={invoiceStyles.itemPrice}>${taxPrice}</Text>
+            <Text style={invoiceStyles.itemPrice}>₹{taxPrice}</Text>
           </View>
           <View style={invoiceStyles.summaryRow}>
             <Text style={invoiceStyles.totalLabel}>Total:</Text>
-            <Text style={invoiceStyles.totalAmount}>${totalPrice}</Text>
+            <Text style={invoiceStyles.totalAmount}>₹{totalPrice}</Text>
           </View>
         </View>
 
@@ -268,17 +268,17 @@ const OrderDetails = () => {
                               </div>
                               <div className="flex justify-between text-sm">
                                 <span className="text-gray-600 dark:text-gray-400">
-                                  Price: ${item.price}
+                                  Price: ₹{item.price}
                                 </span>
                                 <span className="font-semibold text-gray-900 dark:text-gray-100">
-                                  Total: ${item.price * item.quantity}
+                                  Total: ₹{item.price * item.quantity}
                                 </span>
                               </div>
                             </div>
                           ))}
                         </div>
                         <div className="mt-3 text-sm font-semibold text-gray-800 dark:text-gray-200">
-                          Total Price: ${order.totalPrice}
+                          Total Price: ₹{order.totalPrice}
                         </div>
                       </PopoverContent>
                     </Popover>
