@@ -9,7 +9,7 @@ import { Offer } from "./models/offer.model.js";
 
 dotenv.config({ path: "./.env" });
 
-// 👇 Apna registered + verified admin email yahan daal (jiske against restaurant register hai)
+// Target admin user email for seeding demo restaurant relations
 const OWNER_EMAIL = "softpro1712@gmail.com";
 
 const run = async () => {
@@ -19,15 +19,15 @@ const run = async () => {
 
     const user = await User.findOne({ email: OWNER_EMAIL });
     if (!user) {
-      throw new Error(`User with email ${OWNER_EMAIL} not found. Pehle register/verify kar.`);
+      throw new Error(`User with email ${OWNER_EMAIL} not found. Please register and verify first.`);
     }
     if (!user.restaurantId) {
-      throw new Error("Is user ke against koi restaurant register nahi hai. Pehle restaurant register kar (RestaurantRegistration form se).");
+      throw new Error("No restaurant associated with this user. Please register a restaurant first.");
     }
 
     const restaurant = await Restaurant.findById(user.restaurantId);
     if (!restaurant) {
-      throw new Error("Restaurant document nahi mila DB mein.");
+      throw new Error("Restaurant document not found in database.");
     }
 
     console.log(`Seeding data for restaurant: ${restaurant.name} (${restaurant._id})`);

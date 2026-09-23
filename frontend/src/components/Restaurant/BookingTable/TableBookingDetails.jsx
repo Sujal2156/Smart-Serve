@@ -28,53 +28,37 @@ import { toast } from 'react-toastify'
 
 const TableBookingDetails = () => {
   const { userInfo } = useSelector((state) => state.auth);
-  const id = userInfo._id;
+  const id = userInfo?._id;
   const navigate = useNavigate()
 
-  const { data, isLoading, error } = useGetTableBookingDetailsQuery(id);
-  // console.log(data)
-  const [ cancelBooking, {isLoading:cancelLoading } ] = useCancelBookingMutation()
+  const { data, isLoading, error, refetch } = useGetTableBookingDetailsQuery(id, {
+    skip: !id,
+  });
+  const [cancelBooking, { isLoading: cancelLoading }] = useCancelBookingMutation();
   const [searchTerm, setSearchTerm] = useState("");
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="flex justify-center items-center h-screen">
-      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#ff6347]"></div>
-    </div>
-      </div>
-    );
+  const bookings = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : []);
 
-  // Create a shallow copy of the array before sorting
-  const sortedBookings = data?.data
-    ? [...data.data].sort(
-        (a, b) => new Date(b.reservationDate) - new Date(a.reservationDate)
-      )
-    : [];
-  const filteredBookings = sortedBookings?.filter(
-    (booking) =>
-      booking.bookingToken.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      new Date(booking.reservationDate)
-        .toLocaleDateString()
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      booking.restaurantId?.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-  );
+  const filteredBookings = bookings.filter((booking) => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase();
+    const token = String(booking.bookingToken || "").toLowerCase();
+    const resName = String(booking.restaurantId?.name || "").toLowerCase();
+    const date = new Date(booking.reservationDate).toLocaleDateString().toLowerCase();
+    const status = String(booking.status || "").toLowerCase();
+    return token.includes(term) || resName.includes(term) || date.includes(term) || status.includes(term);
+  });
 
-  const handleCancel = async(bookingId, restaurant) => {
+  const handleCancel = async (booking, restaurant) => {
     try {
-        // console.log(`Cancelling booking ${bookingId}`);
-        const resid = restaurant._id
-        const bookingid = bookingId._id;
-        await cancelBooking({resid,bookingid}).unwrap();
-        toast.success("Booking cancelled")
-        window. location. reload(false);
-        navigate('/table/details')
-      } catch (err) {
-        toast.error("Cancellation error:", err);
-      }
+      const resid = restaurant?._id || booking.restaurantId?._id || booking.restaurantId;
+      const bookingid = booking._id;
+      await cancelBooking({ resid, bookingid }).unwrap();
+      toast.success("Booking cancelled successfully");
+      refetch();
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to cancel booking");
+    }
   };
 
 

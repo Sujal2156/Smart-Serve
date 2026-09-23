@@ -7,7 +7,7 @@ import { User } from "../models/user.models.js"
 import { ApiError } from "../utils/ApiError.js"
 
 const getRestaurant = asyncHandler(async (req, res, next) => {
-    const resultPerPage = 5
+    const resultPerPage = Number(req.query.limit) || 20
 
     const apiFeatures = new ApiFeatures(Restaurant.find(), req.query)
         .search()
@@ -27,11 +27,6 @@ const getRestaurant = asyncHandler(async (req, res, next) => {
         .status(200)
         .json(new ApiResponse(200, { restaurants, restaurantCount, resultPerPage }, 
             restaurantCount === 0 ? "No restaurants found" : "Restaurant fetched successfully."))
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, { restaurants, restaurantCount, resultPerPage }, "Restaurant fetched successfully."))
-
 })
 
 // Fetch the restaurant by Id
@@ -55,13 +50,14 @@ const registerRestaurant = asyncHandler(async (req, res, next) => {
 
     console.log(req.body)
 
-    const user = await User.findOne({ email: req.body.ownerEmail })
+    const ownerEmailTrimmed = req.body.ownerEmail?.trim().toLowerCase()
+    const user = await User.findOne({ email: ownerEmailTrimmed })
     if (!user) {
-        return next(new ApiError(404, "User not found, Kindly enter your existing emial"));
+        return next(new ApiError(404, "User not found. Kindly enter your registered admin email."));
     }
 
     if (!user.isAdmin) {
-       return next(new ApiError(409, "Unauthorized"))
+       return next(new ApiError(403, "Unauthorized: Only admin users can register restaurants."))
     }
 
     const { ownerName, name, ownerEmail, description, phoneNumber, openingTime, closingTime, address, city, state, zipCode } = req.body
@@ -190,30 +186,23 @@ const getRestaurantReview = asyncHandler(async (req, res, next) => {
 const updateCloseOpen = asyncHandler(async (req, res, next) => {
     const { resid } = req.params;
     let { isOpen } = req.body;
-    console.log(resid); // Extract isAvailable from request body
 
-    // Convert isAvailable to boolean if it comes as a string
     if (typeof isOpen === 'string') {
-        isOpen = isOpen === 'true'; // Convert to boolean
+        isOpen = isOpen === 'true';
     }
 
-    console.log("isAvailable after parsing:", isOpen); // Should be true or false
-
-    // Find the item by restaurant ID and item ID
     const item = await Restaurant.findById(resid);
-    console.log(item)
     if (!item) {
-        next(new ApiError(404, "Not found"))
+        return next(new ApiError(404, "Restaurant not found"))
     }
 
-    // Update the menu item with the new availability status
-    const menuItem = await Restaurant.findByIdAndUpdate(
-        { _id: resid },
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(
+        resid,
         { $set: { isOpen } },
         { new: true }
     );
 
-    return res.status(200).json(new ApiResponse(200, menuItem, "Item updated successfully."));
+    return res.status(200).json(new ApiResponse(200, updatedRestaurant, "Restaurant status updated successfully."));
 });
 
 

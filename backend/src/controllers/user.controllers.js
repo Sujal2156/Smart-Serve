@@ -3,6 +3,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import {
   sendPasswordResetEmail,
   sendResetSuccessMail,
@@ -168,15 +169,13 @@ const logoutUser = asyncHandler(async (req, res, next) => {
 
 // get refresh token
 const refreshAccessToken = asyncHandler(async (req, res, next) => {
-  const incomingRefreshToken = req.body?.refreshToken;
-  //console.log(incomingRefreshToken);
+  const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
   if (!incomingRefreshToken) { return next(new ApiError(401, "Refresh token is required")) }
 
   try {
     const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
     const user = await User.findById(decodedToken._id)
-    //console.log(decodedToken);
 
     if (!user || user.refreshToken !== incomingRefreshToken) { return next(new ApiError(401, "Invalid refresh token")) }
 
@@ -184,6 +183,8 @@ const refreshAccessToken = asyncHandler(async (req, res, next) => {
 
     return res
       .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
       .json(new ApiResponse(200, { accessToken, refreshToken: newRefreshToken }, "Token refreshed successfully."))
   } catch (err) {
     return next(new ApiError(401, "Invalid or expired refresh token"))
@@ -223,15 +224,14 @@ const forgotPassword = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
 
   const user = await User.findOne({ email });
-  if (!user) { return next(new ApiError(404, "User does not exits")) }
+  if (!user) { return next(new ApiError(404, "User does not exist")) }
 
   try {
     const resetToken = user.generateResetToken();
-    user.passwordResetToken = resetToken;
     await user.save({ validateBeforeSave: false });
 
-    // const passwordURL = `${req.protocol}://${req.get("host")}/user/reset-password/${resetToken}`
-const passwordURL = `${req.protocol}://localhost:5173/user/reset-password/${resetToken}`;
+    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+    const passwordURL = `${clientUrl}/user/reset-password/${resetToken}`;
     await sendPasswordResetEmail(user.email, user.fullName, passwordURL);
 
     return res
@@ -239,8 +239,8 @@ const passwordURL = `${req.protocol}://localhost:5173/user/reset-password/${rese
       .json(new ApiResponse(200, {}, `Email sent to ${user.email} successfully!`))
 
   } catch (err) {
-    user.passwordResetToken = null;
-    user.passwordResetTokenExpiry = null;
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpiry = undefined;
 
     await user.save({ validateBeforeSave: false });
 
@@ -252,14 +252,16 @@ const passwordURL = `${req.protocol}://localhost:5173/user/reset-password/${rese
 const resetPassword = asyncHandler(async (req, res, next) => {
   const { token } = req.params;
 
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
   const user = await User.findOne({
-    passwordResetToken: token,
+    passwordResetToken: hashedToken,
     passwordResetTokenExpiry: { $gt: Date.now() },
   });
-  if (!user) { return next(new ApiError(404, "Token is invalid or has been expired")) }
+  if (!user) { return next(new ApiError(400, "Token is invalid or has expired")) }
 
   const { password, confirmPassword } = req.body
-  if (password !== confirmPassword) { return next(new ApiError(400, "password does not match")) }
+  if (password !== confirmPassword) { return next(new ApiError(400, "Passwords do not match")) }
 
   if (!password || password.length < 8 || password.length > 14) {
     return next(new ApiError(400, "Password must be between 8 and 14 characters"));

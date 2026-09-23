@@ -55,14 +55,14 @@ const orderSchema = new Schema(
     },
     orderStatus: {
       type: String,
-      enum: ['Pending', 'Recieved', 'Served'],
+      enum: ['Pending', 'Recieved', 'Received', 'Served'],
       default: 'Pending',
       required: true,
     },
     paymentMethod: {
       type: String,
-      required:true,
-      enum: ['Cash', 'Card', 'Online'],
+      required: true,
+      enum: ['Cash', 'Card', 'Online', 'PayPal'],
       default: 'Cash',
     },
     paymentResult: {

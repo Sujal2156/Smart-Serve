@@ -26,7 +26,7 @@
 </div>
 
 ## Demo and Screenshots
-- **Live Demo**: [SmartServe live](http://scan-and-dine.onrender.com/)
+- **Live Demo**: [SmartServe Live](https://smartserve.onrender.com/)
 
 ## Installation
 

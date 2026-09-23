@@ -32,18 +32,16 @@ const getDefaultCartState = () => ({
   successMessage: "", // For success messages
 });
 
-// Safely load cart from localStorage - agar corrupt/invalid data mila,
-// crash karne ke bajaye fresh default state use karega
+// Safely restore cart state from localStorage with fallback to default state
 const loadCartFromStorage = () => {
   try {
     const stored = JSON.parse(localStorage.getItem("cart"));
     if (stored && Array.isArray(stored.cartItems)) {
-      // Merge kar rahe hain taaki agar naye fields (jaise errorMessage) purane
-      // saved cart mein missing hon, wo bhi default se aa jayein
+      // Merge with default state to ensure schema compatibility
       return { ...getDefaultCartState(), ...stored };
     }
   } catch (e) {
-    console.warn("Corrupt cart data found in localStorage, resetting cart.", e);
+    console.warn("Invalid cart state in storage, resetting to default.", e);
   }
   return getDefaultCartState();
 };
@@ -58,13 +56,17 @@ const cartSlice = createSlice({
     addToCart: (state, action) => {
       const { resId: restaurantId, item, qty } = action.payload;
 
+      // If cart has no items, reset the active restaurant
+      if (!state.cartItems || state.cartItems.length === 0) {
+        state.restaurantId = restaurantId;
+      }
+
       // Check if the cart already contains items from a different restaurant
-      if (state.restaurantId && state.restaurantId !== restaurantId) {
-        state.errorMessage = "You can only add items from one restaurant at a time."; // Set error message
+      if (state.restaurantId && restaurantId && state.restaurantId !== restaurantId && state.cartItems.length > 0) {
+        state.errorMessage = "Your cart contains items from another restaurant. Please clear your cart to add items from here.";
         return;
       }
 
-      // If the cart is empty, set the restaurantId to the current restaurant
       if (!state.restaurantId) {
         state.restaurantId = restaurantId;
       }

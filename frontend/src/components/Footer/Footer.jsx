@@ -19,7 +19,7 @@ function Footer() {
             <img
               src={assets.appXlogo}
               alt="SmartServe Logo"
-              className="h-[150px] w-auto mb-4 transition-transform duration-300 hover:scale-105"
+              className="h-[120px] w-auto mb-4 rounded-xl shadow-lg bg-white p-1 transition-transform duration-300 hover:scale-105"
             />
             <Typography
               variant="lead"
@@ -87,7 +87,7 @@ function Footer() {
                       variant="small"
                       className="text-gray-400 hover:text-[#fa2600] cursor-pointer"
                     >
-                      scandine69@gmail.com
+                      smartserve69@gmail.com
                     </Typography>
                   </li>
                 </ul>

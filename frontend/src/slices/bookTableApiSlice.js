@@ -9,12 +9,14 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['Booking'],
     }),
     getTableBookingDetails: builder.query({
       query: (userId) => ({
         url: `${BOOK_TABLE_URL}/details/user/${userId}`,
         method: 'GET',
       }),
+      providesTags: ['Booking'],
       keepUnusedDataFor: 5,
     }),
     cancelBooking: builder.mutation({
@@ -22,6 +24,7 @@ export const bookingApiSlice = apiSlice.injectEndpoints({
         url: `${BOOK_TABLE_URL}/${resid}/cancel/${bookingid}`,
         method: 'PATCH',
       }),
+      invalidatesTags: ['Booking'],
     }),    
   }),
 });

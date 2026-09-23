@@ -10,6 +10,8 @@ import {
 } from "../../slices/cartSlice";
 import { Button } from "@material-tailwind/react";
 
+import { resolveFoodItemImage, getFoodFallbackByName } from "../../utils/foodImageHelper";
+
 const Cart = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -56,9 +58,18 @@ const Cart = () => {
           {cartItems.length > 0 ? (
             cartItems.map((food, index) => (
               <div key={index} className="cart-items-title cart-items-item">
-                <img src={food.item.image} alt={food.item.name} />
-                <p>{food.item.name}</p>
-                <p>₹{food.item.price}</p>
+                <img
+                  src={resolveFoodItemImage(food.item)}
+                  alt={food.item?.name || "Dish"}
+                  referrerPolicy="no-referrer"
+                  crossOrigin="anonymous"
+                  onError={(e) => {
+                    e.currentTarget.src = getFoodFallbackByName(food.item?.name, food.item?.category);
+                  }}
+                  className="w-14 h-14 object-cover rounded-xl shadow-sm border border-gray-100"
+                />
+                <p>{food.item?.name}</p>
+                <p>₹{food.item?.price}</p>
                 <div className="cart-quantity-controls">
                   <button
                     onClick={() => decrementQuantityHandler(food.item)}

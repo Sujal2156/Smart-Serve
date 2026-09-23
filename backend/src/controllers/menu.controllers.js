@@ -12,16 +12,11 @@ const getMenuItem = asyncHandler(async (req, res, next) => {
     const apiFeatures = new ApiFeatures(Menu.find({ restaurantId: resid }), req.query)
         .searchMenu()
 
-    const menu = await apiFeatures.query
-
-    if (!menu || menu.length === 0) {
-        return next(new ApiError(404, "Items not found"))
-    }
-
+    const menu = await apiFeatures.query || []
 
     return res
         .status(200)
-        .json(new ApiResponse(200, menu, "Menu fetched successfully"))
+        .json(new ApiResponse(200, menu, menu.length === 0 ? "No items found" : "Menu fetched successfully"))
 })
 
 // get menu by id

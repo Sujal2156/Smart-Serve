@@ -8,23 +8,23 @@ const createOffer = asyncHandler(async (req, res, next) => {
     const { resid } = req.params
 
     const { offerName, offerDescription } = req.body
-    if (!offerName && offerDescription) {
+    if (!offerName || !offerDescription || !offerName.trim() || !offerDescription.trim()) {
         return next(new ApiError(400, "Offer name and description are required"))
     }
 
-    const offerLocalPath = req.files?.offerImage[0]?.path
+    const offerLocalPath = req.files?.offerImage?.[0]?.path
 
     if (!offerLocalPath) {
-        return next(new ApiError(401, "Offer image is required"))
+        return next(new ApiError(400, "Offer image is required"))
     }
 
     const offerImage = await uploadOnCloudinary(offerLocalPath)
 
     const offer = await Offer.create({
         restaurantId: resid,
-        offerName,
-        offerDescription,
-        offerImage: offerImage.url,
+        offerName: offerName.trim(),
+        offerDescription: offerDescription.trim(),
+        offerImage: offerImage?.url,
     })
 
     const createdOffer = await Offer.findById(offer._id)
@@ -34,22 +34,18 @@ const createOffer = asyncHandler(async (req, res, next) => {
     }
 
     return res
-        .status(200)
-        .json(new ApiResponse(200, createdOffer, "Offer created successfully"))
+        .status(201)
+        .json(new ApiResponse(201, createdOffer, "Offer created successfully"))
 })
 
 const getOffers = asyncHandler(async (req, res, next) => {
     const { resid } = req.params
 
-    const offers = await Offer.find({ restaurantId: resid })
-
-    if (!offers) {
-        return next(new ApiError(404, "Offer not found"))
-    }
+    const offers = await Offer.find({ restaurantId: resid }) || []
 
     return res
         .status(200)
-        .json(new ApiResponse(200, offers, "Offeres fetched successfully."))
+        .json(new ApiResponse(200, offers, "Offers fetched successfully."))
 })
 
 const deleteOffer = asyncHandler(async (req, res, next) => {

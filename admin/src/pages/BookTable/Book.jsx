@@ -90,9 +90,13 @@ const BookTable = ({ url }) => {
   const updateBookingStatus = async (bookingId) => {
     try {
       const token = JSON.parse(localStorage.getItem('token'));
-      const response = await axios.patch(`${url}/booking/update/${bookingId}`, token, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.patch(
+        `${url}/booking/update/${bookingId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       setBookings((prevBookings) =>
         prevBookings.map((booking) =>
@@ -149,7 +153,7 @@ const BookTable = ({ url }) => {
             </tr>
           </thead>
           <tbody>
-            {bookings.reverse().map((booking) => (
+            {[...bookings].reverse().map((booking) => (
               <tr key={booking._id}>
                 <td>{booking.bookingToken}</td>
                 <td>{booking.name}</td>

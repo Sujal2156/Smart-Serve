@@ -26,15 +26,16 @@ const bookingSchema = new Schema({
         required: true,
         validate: {
             validator: function (v) {
-                return v > new Date()
+                const today = new Date()
+                today.setHours(0, 0, 0, 0)
+                return v >= today
             },
-            message: "Reservation date must be in the future.",
+            message: "Reservation date must be for today or a future date.",
         },
     },
     reservationTime: {
         type: String,
         required: true,
-        enum: ['11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '19:00', '20:00', '21:00'],
     },
     numGuests: {
         type: Number,
@@ -50,7 +51,7 @@ const bookingSchema = new Schema({
         type: String,
         required: true,
         trim: true,
-        match: /^\+?[1-9]\d{1,14}$/,
+        match: /^\+?[0-9]{7,15}$/,
     },
     contactEmail: {
         type: String,
@@ -67,12 +68,11 @@ const bookingSchema = new Schema({
 }, { timestamps: true })
 
 bookingSchema.index({
-    reservationDate: 1, reservationTime: 1,
-}, { unique: true, }
-)
+    restaurantId: 1, reservationDate: 1, reservationTime: 1,
+})
 
 bookingSchema.index({
-    user: 1, reservationDate: 1
-}, { unique: true })
+    user: 1, reservationDate: 1,
+})
 
 export const Booking = mongoose.model('Booking', bookingSchema)

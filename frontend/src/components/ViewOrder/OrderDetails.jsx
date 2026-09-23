@@ -196,13 +196,21 @@ const OrderDetails = () => {
                         Status:
                       </dt>
                       <dd
-                        className={`me-2 mt-1.5 inline-flex items-center rounded px-2.5 py-0.5 text-xs font-medium ${
+                        className={`me-2 mt-1.5 inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${
                           order.orderStatus === "Pending"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
-                            : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                            ? "bg-amber-100 text-amber-800 border border-amber-200"
+                            : order.orderStatus === "Received"
+                            ? "bg-blue-100 text-blue-800 border border-blue-200"
+                            : order.orderStatus === "Served"
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                            : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {order.orderStatus}
+                        {order.orderStatus === "Received"
+                          ? "🍳 Cooking in Kitchen"
+                          : order.orderStatus === "Served"
+                          ? "✅ Served & Ready"
+                          : "⏳ " + (order.orderStatus || "Pending")}
                       </dd>
                     </dl>
 

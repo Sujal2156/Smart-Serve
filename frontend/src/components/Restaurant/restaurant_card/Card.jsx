@@ -163,27 +163,25 @@ function RestaurantCard({
         </CardBody>
         <CardFooter className="pt-0 flex justify-between p-4">
           <div className="w-full">
-            {scanResult ? (
-              <div>Success: Redirecting...</div>
-            ) : (
-              <button
-                type="button"
-                onClick={(event) => {
-                  if (isOpen) {
-                    event.stopPropagation();
-                    openScanner();
-                  }
-                }}
-                disabled={!isOpen}
-                className={`w-full h-full text-white font-medium place-items-center rounded-lg text-sm px-5 py-2.5 mb-2 transition-colors duration-300 ${
-                  isOpen
-                    ? "bg-gray-800 hover:bg-gray-900"
-                    : "bg-gray-500 cursor-not-allowed"
-                }`}
-              >
-                <QrCodeIcon/>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                if (isOpen) {
+                  navigate(`/restaurant/${_id}/menu`);
+                }
+              }}
+              disabled={!isOpen}
+              title="Open Digital Menu"
+              className={`w-full h-full text-white font-medium flex items-center justify-center rounded-lg text-xs md:text-sm px-3 py-2.5 mb-2 transition-colors duration-300 ${
+                isOpen
+                  ? "bg-gray-900 hover:bg-[#ff6347]"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+            >
+              <QrCodeIcon className="w-4 h-4 mr-1.5" />
+              <span>Menu</span>
+            </button>
           </div>
           <Link to={`/${_id}/book-table`} className="w-full ml-2">
             <Button

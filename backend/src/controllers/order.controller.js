@@ -1,5 +1,6 @@
 import { Order } from "../models/order.model.js"
 import { Restaurant } from "../models/restaurant.models.js"
+import { Menu } from "../models/menu.models.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
@@ -62,17 +63,36 @@ const placeOrder = asyncHandler(async (req, res, next) => {
     }
 
     const orderNo = await generateOrderToken()
+
+    const resolvedItems = await Promise.all(
+        items.map(async (item) => {
+            const menuId = item.menu || item.id || item._id;
+            let itemName = item.name || item.itemName;
+            let itemPrice = item.price;
+            if (!itemName || itemPrice === undefined) {
+                const menuItem = await Menu.findById(menuId);
+                if (menuItem) {
+                    itemName = itemName || menuItem.itemName;
+                    itemPrice = itemPrice !== undefined ? itemPrice : menuItem.price;
+                }
+            }
+            return {
+                ...item,
+                name: itemName || "SmartServe Specialty",
+                price: Number(itemPrice) || 0,
+                menu: menuId,
+            };
+        })
+    );
+
     const order = await Order.create({
         user: req.user?._id,
         restaurantId: targetResId,
         orderNo,
-        items: items.map((item) => ({
-            ...item,
-            menu: item.menu || item.id || item._id,
-        })),
-        taxPrice,
-        totalPrice,
-        serviceCharge,
+        items: resolvedItems,
+        taxPrice: taxPrice || 0,
+        totalPrice: totalPrice || 0,
+        serviceCharge: serviceCharge || 0,
     })
 
     const updatedRestaurant = await Restaurant.findByIdAndUpdate(
@@ -156,8 +176,8 @@ const addItem = asyncHandler(async (req, res, next) => {
 
     order.totalPrice += items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-    if (order.status === 'Served') {
-        order.status = 'Pending'
+    if (order.orderStatus === 'Served') {
+        order.orderStatus = 'Pending'
     }
 
     await order.save({ validateBeforeSave: false })
@@ -170,25 +190,20 @@ const addItem = asyncHandler(async (req, res, next) => {
 // Update Order status           @ADMIN only
 const updateOrderStatus = asyncHandler(async (req, res, next) => {
     const { orderid } = req.params
-    const { status } = req.body
-    console.log(orderid);
-    console.log(status);
+    const status = req.body.status || req.body.orderStatus
 
     const order = await Order.findById(orderid)
-    // console.log(order);
-
 
     if (!order) {
         return next(new ApiError(404, "Order not found"))
     }
 
     if (order.orderStatus === status) {
-        return next(new ApiError(402, `Order is already in${order.status}`))
+        return next(new ApiError(400, `Order is already ${order.orderStatus}`))
     }
 
     order.orderStatus = status
     await order.save({ validateBeforeSave: false })
-
 
     return res
         .status(200)
@@ -198,7 +213,6 @@ const updateOrderStatus = asyncHandler(async (req, res, next) => {
 const updateOrderToPaid = asyncHandler(async (req, res, next) => {
     const { orderid } = req.params;
 
-
     // Find and update the order's status
     const order = await Order.findById(orderid);
 
@@ -207,8 +221,7 @@ const updateOrderToPaid = asyncHandler(async (req, res, next) => {
     }
 
     // Set order properties to reflect payment
-    order.isPaid = 'true'
-    order.status = 'Paid'
+    order.isPaid = true
     order.paidAt = Date.now()
     order.paymentMethod = 'PayPal'
 
@@ -222,7 +235,7 @@ const updateOrderToPaid = asyncHandler(async (req, res, next) => {
     };
 
     // Save the updated order
-    const updatedOrder = await order.save({validateBeforeSave: false});
+    const updatedOrder = await order.save({ validateBeforeSave: false });
 
     return res
         .status(200)

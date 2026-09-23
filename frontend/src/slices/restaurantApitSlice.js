@@ -5,11 +5,19 @@ import { apiSlice } from "./apiSlice";
 const restaurantApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getRestaurant: builder.query({
-            query: (keyword) => ({
-                url: `${RESTAURANT_URL}/all`, // get all restaurant
-                params: { keyword },
-            }),
-            keepUnusedDataFor: 5, // Keep the data in cache for 5 seconds
+            query: (params) => {
+                if (typeof params === "string") {
+                    return {
+                        url: `${RESTAURANT_URL}/all`,
+                        params: { keyword: params },
+                    };
+                }
+                return {
+                    url: `${RESTAURANT_URL}/all`,
+                    params: params || {},
+                };
+            },
+            keepUnusedDataFor: 5,
         }),
         getRestaurantDetails: builder.query({
             query: (restaurantId)=>({

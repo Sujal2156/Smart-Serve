@@ -28,19 +28,30 @@ const generateBookingToken = async () => {
 const bookTable = asyncHandler(async (req, res, next) => {
     const { resid } = req.params
 
-    const { name, reservationDate, reservationTime, numGuests, specialRequests, contactPhone, contactEmail } = req.body
+    let { name, reservationDate, reservationTime, numGuests, specialRequests, contactPhone, contactEmail } = req.body
 
     if (
         [name, reservationDate, reservationTime, contactPhone, contactEmail].some((field) => field?.trim() === "")
     ) { return next(new ApiError(400, "All fields are required")) }
 
+    contactPhone = String(contactPhone || "").replace(/[\s\-()]/g, "")
+    contactEmail = String(contactEmail || "").trim().toLowerCase()
+
     if (!numGuests || numGuests < 1 || numGuests > 20) {
         return next(new ApiError(400, "Number of guests must be between 1 and 20"));
     }
 
+    let parsedDate = reservationDate;
+    if (typeof reservationDate === 'string' && reservationDate.includes('/')) {
+        const [d, m, y] = reservationDate.split('/');
+        parsedDate = new Date(Number(y), Number(m) - 1, Number(d));
+    } else if (typeof reservationDate === 'string') {
+        parsedDate = new Date(reservationDate);
+    }
+
     const existedBooking = await Booking.findOne({
         restaurantId: resid,
-        reservationDate,
+        reservationDate: parsedDate,
         reservationTime,
         status: { $ne: 'Cancelled' },
         $or: [{ contactEmail }, { contactPhone }, { user: req.user._id }]
@@ -60,7 +71,7 @@ const bookTable = asyncHandler(async (req, res, next) => {
         contactEmail,
         contactPhone,
         numGuests,
-        reservationDate,
+        reservationDate: parsedDate,
         reservationTime,
         specialRequests,
     })
@@ -171,17 +182,13 @@ const getBookingsByUserId = asyncHandler(async (req, res, next) => {
     const bookings = await Booking.find({ user: userId })
         .populate({
             path: 'restaurantId',
-            select: 'name address phoneNumber rating',
-        });
+            select: 'name address phoneNumber rating avatar',
+        })
+        .sort({ createdAt: -1 });
 
-    if (!bookings || bookings.length === 0) {
-        return next(new ApiError(404, "No bookings found for this user"));
-    }
-
-    // Send back the bookings with populated restaurant details
     return res
         .status(200)
-        .json(new ApiResponse(200, bookings, "Bookings fetched successfully"));
+        .json(new ApiResponse(200, bookings || [], bookings && bookings.length > 0 ? "Bookings fetched successfully" : "No bookings found for this user"));
 });
 
 
@@ -189,7 +196,8 @@ const getAllBookings = asyncHandler(async (req, res, next) => {
     const { resid } = req.params;
     const { date } = req.query;
 
-    const query = { restaurantId: resid };
+    const targetResId = (resid && resid !== "undefined" && resid !== "null") ? resid : req.user?.restaurantId;
+    const query = targetResId ? { restaurantId: targetResId } : {};
 
     if (date) {
         const [day, month, year] = date.split('/');
@@ -200,9 +208,9 @@ const getAllBookings = asyncHandler(async (req, res, next) => {
         };
     }
 
-    const allBookings = await Booking.find(query);
+    const allBookings = await Booking.find(query).sort({ reservationDate: -1 });
 
-    // Empty array bhi 200 ke saath return hoga, 404 nahi
+    // Return 200 OK with empty list when no bookings exist for the query
     return res
         .status(200)
         .json(new ApiResponse(200, allBookings, allBookings.length === 0 ? "No bookings found" : "All bookings fetched successfully"));

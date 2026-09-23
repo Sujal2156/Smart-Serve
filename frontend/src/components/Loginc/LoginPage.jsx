@@ -8,13 +8,13 @@ import { useSelector, useDispatch } from "react-redux"
 import { setCredentials } from "../../slices/authSlice"
 import { Spinner } from "@material-tailwind/react"
 
-const LoginPage = ({ setShowLogin }) => {
+const LoginPage = ({ setShowLogin, isProtectedPrompt = false }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [login, { isLoading }] = useLoginMutation()
   const [register, { isLoading: registerLoading }] = useRegisterUserMutation()
   const [verifyUserByOtp, { isLoading: otpLoading }] = useVerifyUserByOtpMutation()
-  const { userinfo } = useSelector((state) => state.auth)
+  const { userInfo } = useSelector((state) => state.auth)
 
   const [currState, setCurrState] = useState("Login")
   const [showOtp, setShowOtp] = useState(false)
@@ -27,10 +27,12 @@ const LoginPage = ({ setShowLogin }) => {
   const otpRefs = useRef([])
 
   useEffect(() => {
-    if (userinfo && !showOtp) {
-      navigate("/")
+    if (userInfo && !showOtp) {
+      if (typeof setShowLogin === "function") {
+        setShowLogin(false)
+      }
     }
-  }, [userinfo, navigate, showOtp])
+  }, [userInfo, showOtp, setShowLogin])
 
   const [data, setData] = useState({
     fullName: "",
@@ -92,12 +94,18 @@ const LoginPage = ({ setShowLogin }) => {
         const res = await login(data).unwrap()
         if (res.success) {
           dispatch(setCredentials({ ...res }))
-          toast.success(`Welcome back ${res.data.user.fullName}`)
-          setShowLogin(false)
-          navigate("/")
+          toast.success(`Welcome back, ${res.data.user.fullName}! 👋`)
+          if (typeof setShowLogin === "function") {
+            setShowLogin(false)
+          }
         }
       } else {
         // Registration with OTP verification
+        if (data.password.length < 8 || data.password.length > 14) {
+          toast.error("Password must be between 8 and 14 characters")
+          return
+        }
+
         if (data.password !== confirmPassword) {
           toast.error("Passwords do not match")
           return
@@ -180,16 +188,40 @@ const handleOtpSubmit = async (e) => {
     navigate("/forgetpassword")
   }
 
+  const handleClose = () => {
+    if (typeof setShowLogin === "function") {
+      setShowLogin(false)
+    }
+    if (isProtectedPrompt) {
+      if (window.history.length > 1) {
+        navigate(-1)
+      } else {
+        navigate("/")
+      }
+    }
+  }
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-      <div className="relative bg-white w-[90%] md:w-[800px] h-auto rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row">
+    <div 
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose()
+      }}
+      className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 p-4"
+    >
+      <div className="relative bg-white w-full max-w-[800px] h-auto rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
         {/* Close Button */}
-        <img
-          onClick={() => setShowLogin(false)}
-          src={assets.cross_icon || "/placeholder.svg"}
-          alt="Close"
-          className="absolute top-4 right-4 cursor-pointer z-10"
-        />
+        <button
+          onClick={handleClose}
+          type="button"
+          aria-label="Close"
+          className="absolute top-4 right-4 cursor-pointer z-30 p-2 rounded-full bg-white/80 hover:bg-gray-100 shadow-sm transition-all"
+        >
+          <img
+            src={assets.cross_icon}
+            alt="Close"
+            className="w-4 h-4 object-contain"
+          />
+        </button>
 
         {/* Left side with image */}
         <div className="relative w-full md:w-1/2 h-[300px] md:h-auto flex flex-col">
@@ -211,7 +243,7 @@ const handleOtpSubmit = async (e) => {
               <p className="text-lg md:text-xl text-white">Ready to Savor?</p>
             </div>
           )}
-          <img className="w-full h-full object-cover" src={logImage || "/placeholder.svg"} alt="Login Background" />
+          <img className="w-full h-full object-cover" src={logImage || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800"} alt="Login Background" />
         </div>
 
         {/* Right side with form */}
@@ -343,6 +375,8 @@ const handleOtpSubmit = async (e) => {
                   value={data.password}
                   onChange={handleInputChange}
                   required
+                  minLength={8}
+                  maxLength={14}
                   name="password"
                 />
                 {currState !== "Login" && (
@@ -353,6 +387,8 @@ const handleOtpSubmit = async (e) => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
+                    minLength={8}
+                    maxLength={14}
                     name="confirmPassword"
                   />
                 )}

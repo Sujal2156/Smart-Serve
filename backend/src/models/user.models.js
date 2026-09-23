@@ -53,8 +53,6 @@ const userSchema = new Schema({
     },
 }, { timestamps: true })
 
-userSchema.index({ verificationTokenExpiry: 1, passwordResetTokenExpiry: 2 }, { expireAfterSeconds: 300 })
-
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
         return next()

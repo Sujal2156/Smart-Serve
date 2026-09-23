@@ -1,5 +1,5 @@
 {
-  "name": "scan-dine",
+  "name": "smart-serve",
   "private": true,
   "version": "0.0.0",
   "proxy": "http://localhost:8080",

@@ -22,6 +22,7 @@ import OrderDetails from './components/ViewOrder/OrderDetails';
 import Profile from './components/Profile/Profile';
 import TableBookingDetails from './components/Restaurant/BookingTable/TableBookingDetails';
 import Payment from './components/Payment/Payment';
+import Explore from './pages/Explore/Explore';
 import ResetPassword from './components/ForgetPassword/ResetPassword'
 
 
@@ -38,30 +39,24 @@ const App = () => {
         <Routes>
           {/* Public routes */}
           <Route path='/' element={<Home />} exact />
+          <Route path='/explore' element={<Explore />} />
           <Route path='/partner' element={<Partner />} />
           <Route path='/restaurant/:id/view' element={<RestaurantTemplate />} />
-          <Route path="/forgetpassword" element={<ForgetPassword />} />
+          <Route path='/restaurant/:id/menu' element={<RestaurantMenu />} />
           <Route path='/forgetpassword' element={<ForgetPassword />} />
-          <Route path='/reset-password' element={<ForgetPassword />} /> 
-          {/* <Route path='/reset-password' setShowLogin={setShowLogin} element={<ForgetPassword />} /> */}
           <Route path='/user/reset-password/:token' element={<ResetPassword />} />
 
-          <Route path='/vieworders' element={<OrderDetails/>}/>
-          <Route path='/table/details' element={<TableBookingDetails/>}/>
-
-          {/* User Routes */}
-          <Route path='/user/change-password' element={<ChangePassword/>}/>
-          <Route path='/user/reset-password/:token' element={<ResetPassword />} />
-          <Route path='/user/me' element={<Profile/>}/>
-          {/* Private routes */}
-          <Route path='' element={<PrivateRoute />}>
-          <Route path='/cart' element={<Cart />} />
+          {/* Protected routes */}
+          <Route element={<PrivateRoute />}>
+            <Route path='/cart' element={<Cart />} />
             <Route path='/:id/book-table' element={<TableBooking />} />
             <Route path='/order' element={<PlaceOrder />} />
-            <Route path='/order/:id' element={<Payment/>}/>
-            <Route path='/restaurant/:id/menu' element={<RestaurantMenu />} />
+            <Route path='/order/:id' element={<Payment />} />
+            <Route path='/vieworders' element={<OrderDetails />} />
+            <Route path='/table/details' element={<TableBookingDetails />} />
+            <Route path='/user/change-password' element={<ChangePassword />} />
+            <Route path='/user/me' element={<Profile />} />
           </Route>
-          
         </Routes>
       </div>
       <Footer />

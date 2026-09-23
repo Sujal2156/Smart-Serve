@@ -8,8 +8,7 @@ import { useVerifyUserByOtpMutation } from "../../slices/usersApiSlice"
 
 function Partner() {
   const navigate = useNavigate()
-  //const url = 'https://scan-dine-backend-5qms.onrender.com/api/v1/user';
-  const url = "http://localhost:8080/api/v1/user"
+  const url = `${import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'}/user`
 
   const [currentStep, setCurrentStep] = useState("register") // 'register' or 'otp'
   const [confirmPassword, setConfirmPassword] = useState("")
@@ -122,7 +121,8 @@ function Partner() {
       if (res.success) {
         toast.success("Email verified successfully! Redirecting to admin panel...")
         setTimeout(() => {
-          window.location.href = "https://scan-dine-admin.onrender.com"
+          const adminUrl = import.meta.env.VITE_ADMIN_URL || "https://smart-serve-admin.onrender.com";
+          window.location.href = adminUrl;
         }, 2000)
 
         // Reset all states

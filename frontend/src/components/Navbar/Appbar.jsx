@@ -3,29 +3,39 @@ import { Link, useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { useLogoutMutation } from "../../slices/usersApiSlice"
 import { logout } from "../../slices/authSlice"
+import { clearAllCart } from "../../slices/cartSlice"
 import { assets } from "../../assets/assets"
 import { QrCode, QrCodeIcon } from "lucide-react"
+import QRScannerModal from "../QRScanner/QRScannerModal"
 
 const Appbar = ({ setShowLogin }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [isSearchVisible, setIsSearchVisible] = useState(false)
+  const [isScannerOpen, setIsScannerOpen] = useState(false)
 
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { userInfo } = useSelector((state) => state.auth)
+  const cart = useSelector((state) => state.cart)
+  const totalCartQty = userInfo
+    ? cart?.cartItems?.reduce((acc, item) => acc + (Number(item.qty) || 1), 0) || 0
+    : 0
   const [logoutApiCall] = useLogoutMutation()
 
   const handleLogout = async () => {
     try {
       await logoutApiCall().unwrap()
+    } catch (error) {
+      console.error("Logout error:", error)
+    } finally {
       dispatch(logout())
+      dispatch(clearAllCart())
+      localStorage.removeItem("cart")
       navigate("/")
       setIsProfileMenuOpen(false)
       setIsMobileMenuOpen(false)
-    } catch (error) {
-      console.error("Logout error:", error)
     }
   }
 
@@ -118,15 +128,15 @@ const Appbar = ({ setShowLogin }) => {
 
             {/* QR Scanner */}
             <button 
-              onClick={() => navigate("/explore")}
-              title="Scan Table QR Code / Explore Restaurant Menu"
+              onClick={() => setIsScannerOpen(true)}
+              title="Scan Table QR Code"
               className="p-2 text-gray-600 hover:text-orange-500 transition-colors"
             >
               <QrCodeIcon/>
             </button>
 
             {/* Cart */}
-            <Link to="/cart" className="p-2 text-gray-600 hover:text-orange-500 transition-colors relative">
+            <Link to="/cart" className="p-2 text-gray-600 hover:text-orange-500 transition-colors relative flex items-center">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
@@ -135,6 +145,11 @@ const Appbar = ({ setShowLogin }) => {
                   d="M16 11V7a4 4 0 00-8 0v4M5 9h14l-1 12H6L5 9z"
                 />
               </svg>
+              {totalCartQty > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#ff6347] text-white text-xs font-bold rounded-full h-5 min-w-[20px] px-1 flex items-center justify-center shadow-md animate-bounce">
+                  {totalCartQty}
+                </span>
+              )}
             </Link>
 
             {/* User Menu */}
@@ -237,10 +252,10 @@ const Appbar = ({ setShowLogin }) => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                             strokeWidth="2"
-                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                           />
                         </svg>
-                        <span>Inbox</span>
+                        <span>Table Bookings</span>
                       </div>
                     </Link>
                     <hr className="my-2 border-gray-200" />
@@ -329,34 +344,39 @@ const Appbar = ({ setShowLogin }) => {
           <div className="md:hidden border-t border-gray-200 py-4 menu-container">
             <div className="flex flex-col space-y-4">
               {/* QR Scanner */}
-              <button className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                {/* <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M12 12h-4.01M12 12v4m6-4h.01M12 8h.01"
-                  />
-                </svg> */}
+              <button
+                onClick={() => {
+                  setIsScannerOpen(true);
+                  closeMobileMenu();
+                }}
+                className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors w-full text-left"
+              >
                 <QrCodeIcon/>
-                <span>QR Scanner</span>
+                <span>Scan Table QR</span>
               </button>
 
               {/* Cart */}
               <Link
                 to="/cart"
-                className="flex items-center space-x-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center justify-between px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 onClick={closeMobileMenu}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l-1 12H6L5 9z"
-                  />
-                </svg>
-                <span>Cart</span>
+                <div className="flex items-center space-x-3">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l-1 12H6L5 9z"
+                    />
+                  </svg>
+                  <span>Cart</span>
+                </div>
+                {totalCartQty > 0 && (
+                  <span className="bg-[#ff6347] text-white text-xs font-bold rounded-full px-2 py-0.5 shadow-sm">
+                    {totalCartQty} items
+                  </span>
+                )}
               </Link>
 
               {!userInfo ? (
@@ -444,10 +464,10 @@ const Appbar = ({ setShowLogin }) => {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="2"
-                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2-2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    <span>Inbox</span>
+                    <span>Table Bookings</span>
                   </Link>
 
                   <button
@@ -470,6 +490,7 @@ const Appbar = ({ setShowLogin }) => {
           </div>
         )}
       </div>
+      <QRScannerModal isOpen={isScannerOpen} onClose={() => setIsScannerOpen(false)} />
     </nav>
   )
 }

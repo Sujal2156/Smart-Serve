@@ -51,11 +51,13 @@ const Register = ({ setShowLogin }) => {
 
       <input
         type="password"
-        placeholder='Password'
+        placeholder='Password (8-14 characters)'
         className='input-class'
         value={formData.password}
         onChange={handleInputChange}
         required
+        minLength={8}
+        maxLength={14}
         name='password'
       />
 

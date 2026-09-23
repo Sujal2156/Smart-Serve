@@ -26,23 +26,28 @@ const RestaurantTemplate = () => {
   const { data: offers, isLoading: offersLoading } = useGetOfferByRestaurantIdQuery(id)
   const { data: feedback, isLoading: feedbackLoading, refetch: refetchFeedback } = useGetFeedbackByRestaurantIdQuery(id)
 
-  // Process data when all APIs return
+  // Process data safely with robust fallbacks
   useEffect(() => {
-    if (restaurant && menu && offers && feedback) {
+    if (restaurant?.data) {
+      const restObj = restaurant.data
+      const menuList = Array.isArray(menu?.data) ? menu.data : menu?.data?.menu || []
+      const offerList = Array.isArray(offers?.data) ? offers.data : []
+      const feedbackList = Array.isArray(feedback?.data) ? feedback.data : []
+
       setRestaurantData({
         info: {
-          id: restaurant.data._id,
-          name: restaurant.data.name,
-          address: restaurant.data.address,
-          phone: restaurant.data.phoneNumber,
-          email: restaurant.data.email,
-          hours: `${restaurant.data.openingTime} - ${restaurant.data.closingTime}`,
-          isOpen: restaurant.data.isOpen,
-          description: restaurant.data.description,
-          avatar: restaurant.data.avatar,
-          rating: restaurant.data.rating || 4.5,
+          id: restObj._id,
+          name: restObj.name,
+          address: restObj.address,
+          phone: restObj.phoneNumber,
+          email: restObj.ownerEmail || restObj.email || "",
+          hours: `${restObj.openingTime || "10:00 AM"} - ${restObj.closingTime || "11:00 PM"}`,
+          isOpen: restObj.isOpen !== undefined ? restObj.isOpen : true,
+          description: restObj.description || "",
+          avatar: restObj.avatar || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
+          rating: restObj.rating || 4.8,
         },
-        menu: menu.data.map((item) => ({
+        menu: menuList.map((item) => ({
           id: item._id,
           name: item.itemName,
           description: item.description,
@@ -52,13 +57,13 @@ const RestaurantTemplate = () => {
           isVeg: item.isVeg,
           isAvailable: item.isAvailable,
         })),
-        offers: offers.data.map((offer) => ({
+        offers: offerList.map((offer) => ({
           id: offer._id,
           name: offer.offerName,
           description: offer.offerDescription,
           image: offer.offerImage,
         })),
-        feedback: feedback.data.map((fb) => ({
+        feedback: feedbackList.map((fb) => ({
           id: fb._id,
           name: fb.name,
           comment: fb.review,
@@ -70,13 +75,12 @@ const RestaurantTemplate = () => {
   }, [restaurant, menu, offers, feedback])
 
   // Loading state
-  if (restaurantLoading || menuLoading || offersLoading || feedbackLoading || !restaurantData) {
+  if (restaurantLoading || (menuLoading && !restaurantData)) {
     return <LoadingSpinner />
   }
 
   // Error state
   if (restaurantError) {
-    toast.error("Failed to load restaurant details")
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -87,13 +91,17 @@ const RestaurantTemplate = () => {
     )
   }
 
+  if (!restaurantData) {
+    return <LoadingSpinner />
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Restaurant Header with Hero Image - Full Width */}
       <RestaurantHeader restaurant={restaurantData.info} />
 
       {/* Main Content Container - Consistent Width */}
-      <div className="max-w-9xl px-4 sm:px-6 lg:px-8 py-8 mx-auto">
+      <div className="max-w-7xl px-4 sm:px-6 lg:px-8 py-8 mx-auto">
         {/* Restaurant Info Section */}
         <RestaurantInfo restaurant={restaurantData.info} />
 

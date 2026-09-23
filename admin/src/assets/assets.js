@@ -14,4 +14,4 @@ export const assets ={
     parcel_icon
 }
 
-export const url = 'https://scan-dine-backend-5qms.onrender.com'
+export const url = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'

@@ -61,7 +61,7 @@ const menuSchema = new Schema({
     rating: {
         type: Number,
         min: 0,
-        max: 1,
+        max: 5,
         default: 0,
     },
     isAvailable: {

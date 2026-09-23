@@ -12,15 +12,24 @@ const allowedOrigins = process.env.CORS_ORIGIN
 // Configure CORS options
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    if (
+      !origin ||
+      allowedOrigins.includes("*") ||
+      allowedOrigins.includes(origin) ||
+      process.env.NODE_ENV === "development" ||
+      origin.includes("10.") ||
+      origin.includes("192.168.") ||
+      origin.includes("localhost") ||
+      origin.includes("127.0.0.1")
+    ) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
 };
 
 app.use(cors(corsOptions));

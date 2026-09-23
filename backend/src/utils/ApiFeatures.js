@@ -5,16 +5,22 @@ class ApiFeatures {
     }
 
     search() {
-        // search by restaurant name
-        const keyword = this.queryStr.keyword ? {
-            name: {
-                $regex: this.queryStr.keyword,
-                $options: "i",
-            },
-        } : {}
+        const searchCriteria = {};
 
-        this.query = this.query.find({ ...keyword })
-        return this
+        if (this.queryStr.keyword) {
+            searchCriteria.$or = [
+                { name: { $regex: this.queryStr.keyword, $options: "i" } },
+                { city: { $regex: this.queryStr.keyword, $options: "i" } },
+                { description: { $regex: this.queryStr.keyword, $options: "i" } },
+            ];
+        }
+
+        if (this.queryStr.city && this.queryStr.city !== 'All' && this.queryStr.city !== 'All Cities') {
+            searchCriteria.city = { $regex: new RegExp(`^${this.queryStr.city.trim()}$`, "i") };
+        }
+
+        this.query = this.query.find(searchCriteria);
+        return this;
     }
 
     searchMenu() {

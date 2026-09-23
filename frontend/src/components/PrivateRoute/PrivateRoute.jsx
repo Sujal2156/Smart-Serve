@@ -1,21 +1,14 @@
-// PrivateRoute.jsx
-import React, { useEffect, useState } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { toast } from 'react-toastify';
+import React from "react";
+import { Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
+import LoginPage from "../Loginc/LoginPage";
 
 const PrivateRoute = () => {
   const { userInfo } = useSelector((state) => state.auth);
-  const [hasNotified, setHasNotified] = useState(false);
 
-  useEffect(() => {
-    if (!userInfo && !hasNotified) {
-      toast.warn('Please log in to access this page', { position: "top-center" });
-      setHasNotified(true); // Ensures notification only shows once
-    }
-  }, [userInfo, hasNotified]);
-
-  return userInfo ? <Outlet /> : <Navigate to="/" replace />;
+  // If user is authenticated, render protected page.
+  // Otherwise, directly render the Login & Register page on the current route without ugly alerts.
+  return userInfo ? <Outlet /> : <LoginPage setShowLogin={() => {}} isProtectedPrompt={true} />;
 };
 
 export default PrivateRoute;

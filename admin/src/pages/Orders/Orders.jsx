@@ -227,7 +227,7 @@ const Orders = ({ url }) => {
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(10);
       doc.text('Thank you for your purchase!', 105, footerStartY, { align: 'center' });
-      doc.text('For inquiries, contact us at scandine69@gmail.com', 105, footerStartY + 10, { align: 'center' });
+      doc.text('For inquiries, contact us at smartserve69@gmail.com', 105, footerStartY + 10, { align: 'center' });
   
       // Save PDF
       doc.save(`Order_Invoice_${selectedOrder.orderNo}.pdf`);
@@ -313,15 +313,15 @@ const Orders = ({ url }) => {
             {selectedOrder.orderStatus === 'Pending' && (
               <div className="">
                 <button
-                  onClick={() => handleUpdateStatus(selectedOrder._id, "Recieved")}
+                  onClick={() => handleUpdateStatus(selectedOrder._id, "Received")}
                   className="back-btn1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
                 >
-                  Mark as Recieved
+                  Mark as Received (Cooking)
                 </button>
               </div>
             )}
 
-            {selectedOrder.orderStatus === 'Recieved' && (
+            {(selectedOrder.orderStatus === 'Received' || selectedOrder.orderStatus === 'Recieved') && (
               <div className="">
                 <button
                   onClick={() => handleUpdateStatus(selectedOrder._id, "Served")}
