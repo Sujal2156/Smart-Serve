@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "react-toastify";
+import { X } from "lucide-react";
 import { useGetRestaurantQuery } from "../../slices/restaurantApitSlice";
 
 const QRScannerModal = ({ isOpen, onClose }) => {
@@ -169,7 +170,12 @@ const QRScannerModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-fade-in">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-fade-in"
+    >
       <div className="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100/60 relative max-h-[94vh] flex flex-col">
         {/* Sleek Header */}
         <div className="bg-gradient-to-r from-gray-950 via-gray-900 to-black text-white px-6 py-4 flex justify-between items-center border-b border-gray-800">
@@ -184,9 +190,11 @@ const QRScannerModal = ({ isOpen, onClose }) => {
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors font-bold text-sm"
+            aria-label="Close QR Scanner"
+            title="Close"
+            className="w-10 h-10 rounded-full bg-white/20 hover:bg-red-500 active:bg-red-600 text-white flex items-center justify-center transition-all duration-200 shadow-md border border-white/30 hover:border-red-400 hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0"
           >
-            ✕
+            <X className="w-5 h-5 text-white stroke-[2.5]" />
           </button>
         </div>
 
