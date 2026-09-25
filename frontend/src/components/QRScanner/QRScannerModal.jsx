@@ -192,7 +192,7 @@ const QRScannerModal = ({ isOpen, onClose }) => {
             onClick={onClose}
             aria-label="Close QR Scanner"
             title="Close"
-            className="w-10 h-10 rounded-full bg-white/20 hover:bg-red-500 active:bg-red-600 text-white flex items-center justify-center transition-all duration-200 shadow-md border border-white/30 hover:border-red-400 hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700 text-white flex items-center justify-center transition-all duration-200 shadow-lg shadow-red-500/40 border border-red-300/50 hover:scale-110 active:scale-95 cursor-pointer flex-shrink-0"
           >
             <X className="w-5 h-5 text-white stroke-[2.5]" />
           </button>
