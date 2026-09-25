@@ -7,9 +7,13 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js"
 const createOffer = asyncHandler(async (req, res, next) => {
     const { resid } = req.params
 
-    const { offerName, offerDescription } = req.body
-    if (!offerName || !offerDescription || !offerName.trim() || !offerDescription.trim()) {
-        return next(new ApiError(400, "Offer name and description are required"))
+    const { offerName, offerCode, offerDescription, discountAmount } = req.body
+    if (!offerName || !offerCode || !offerDescription || !offerName.trim() || !offerCode.trim() || !offerDescription.trim()) {
+        return next(new ApiError(400, "Offer name, code, and description are required"))
+    }
+
+    if (Number(discountAmount) <= 0) {
+        return next(new ApiError(400, "Discount amount must be greater than zero"))
     }
 
     const offerLocalPath = req.files?.offerImage?.[0]?.path
@@ -23,7 +27,9 @@ const createOffer = asyncHandler(async (req, res, next) => {
     const offer = await Offer.create({
         restaurantId: resid,
         offerName: offerName.trim(),
+        offerCode: offerCode.trim().toUpperCase(),
         offerDescription: offerDescription.trim(),
+        discountAmount: Number(discountAmount),
         offerImage: offerImage?.url,
     })
 
@@ -36,6 +42,27 @@ const createOffer = asyncHandler(async (req, res, next) => {
     return res
         .status(201)
         .json(new ApiResponse(201, createdOffer, "Offer created successfully"))
+})
+
+const validateOffer = asyncHandler(async (req, res, next) => {
+    const { resid } = req.params
+    const offerCode = String(req.body.offerCode || "").trim().toUpperCase()
+
+    if (!offerCode) {
+        return next(new ApiError(400, "Promo code is required"))
+    }
+
+    const offer = await Offer.findOne({ restaurantId: resid, offerCode })
+    if (!offer) {
+        return next(new ApiError(404, "Promo code does not match an active offer"))
+    }
+
+    return res.status(200).json(new ApiResponse(200, {
+        offerId: offer._id,
+        offerName: offer.offerName,
+        offerCode: offer.offerCode,
+        discountAmount: offer.discountAmount,
+    }, "Promo code applied successfully"))
 })
 
 const getOffers = asyncHandler(async (req, res, next) => {
@@ -71,4 +98,5 @@ export {
     createOffer,
     deleteOffer,
     getOffers,
+    validateOffer,
 }

@@ -135,15 +135,6 @@ const Cart = () => {
               PROCEED TO CHECKOUT
             </button>
           </div>
-          <div className="cart-promocode">
-            <div>
-              <p>If you have a promocode, Enter here</p>
-              <div className="cart-promocode-input">
-                <input type="text" placeholder="Enter Promocode" />
-                <button>Submit</button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </>

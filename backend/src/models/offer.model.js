@@ -12,6 +12,18 @@ const offerSchema = new Schema({
         required: true,
         trim: true,
     },
+    offerCode: {
+        type: String,
+        required: true,
+        trim: true,
+        uppercase: true,
+        index: true,
+    },
+    discountAmount: {
+        type: Number,
+        required: true,
+        min: 0,
+    },
     offerDescription: {
         type: String,
         required: true,

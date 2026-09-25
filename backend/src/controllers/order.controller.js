@@ -1,6 +1,7 @@
 import { Order } from "../models/order.model.js"
 import { Restaurant } from "../models/restaurant.models.js"
 import { Menu } from "../models/menu.models.js"
+import { Offer } from "../models/offer.model.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
@@ -28,7 +29,24 @@ const generateOrderToken = async () => {
 // Place order controller   @CUSTOMER
 const placeOrder = asyncHandler(async (req, res, next) => {
     const { resid } = req.params
-    const { items, taxPrice, totalPrice, serviceCharge, restaurantId } = req.body
+    const { items, taxPrice, totalPrice, serviceCharge, restaurantId, tableNumber, remarks, promoCode } = req.body
+
+    if (!req.user?._id) {
+        return next(new ApiError(401, "Please login before placing an order"));
+    }
+
+    if (!remarks?.trim()) {
+        return next(new ApiError(400, "Remark is required to place an order"));
+    }
+
+    let appliedOffer = null;
+    const normalizedPromoCode = String(promoCode || "").trim().toUpperCase();
+    if (normalizedPromoCode) {
+        appliedOffer = await Offer.findOne({ restaurantId: restaurantId, offerCode: normalizedPromoCode });
+        if (!appliedOffer) {
+            return next(new ApiError(400, "Promo code does not match an active offer"));
+        }
+    }
 
     let targetResId = resid && resid !== "undefined" && resid !== "null" ? resid : restaurantId;
 
@@ -85,13 +103,22 @@ const placeOrder = asyncHandler(async (req, res, next) => {
         })
     );
 
+    const promoDiscount = appliedOffer?.discountAmount || 0;
+    const finalTotalPrice = Math.max(Number(totalPrice || 0) - promoDiscount, 0);
+
     const order = await Order.create({
-        user: req.user?._id,
+        user: req.user._id,
         restaurantId: targetResId,
+        tableNumber: tableNumber || "",
+        remarks: remarks.trim(),
+        customerPhone: req.user.phoneNumber || "",
+        promoCode: normalizedPromoCode,
+        promoOfferId: appliedOffer?._id,
+        promoDiscount,
         orderNo,
         items: resolvedItems,
         taxPrice: taxPrice || 0,
-        totalPrice: totalPrice || 0,
+        totalPrice: finalTotalPrice,
         serviceCharge: serviceCharge || 0,
     })
 
@@ -151,7 +178,9 @@ const getOrders = asyncHandler(async (req, res, next) => {
         filter = { restaurantId: req.user.restaurantId };
     }
 
-    const orders = await Order.find(filter).sort({ createdAt: -1 });
+    const orders = await Order.find(filter)
+        .populate("user", "fullName email phoneNumber")
+        .sort({ createdAt: -1 });
 
     return res
         .status(200)

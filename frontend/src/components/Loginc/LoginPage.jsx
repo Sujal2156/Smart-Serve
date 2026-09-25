@@ -37,6 +37,7 @@ const LoginPage = ({ setShowLogin, isProtectedPrompt = false }) => {
   const [data, setData] = useState({
     fullName: "",
     email: "",
+    phoneNumber: "",
     password: "",
   })
 
@@ -357,6 +358,17 @@ const handleOtpSubmit = async (e) => {
                     onChange={handleInputChange}
                     required
                     name="fullName"
+                  />
+                )}
+                {currState !== "Login" && (
+                  <input
+                    type="tel"
+                    placeholder="Contact number"
+                    className="w-full text-black py-2 my-2 bg-transparent border-b border-black outline-none focus:outline-none"
+                    value={data.phoneNumber}
+                    onChange={handleInputChange}
+                    required
+                    name="phoneNumber"
                   />
                 )}
                 <input

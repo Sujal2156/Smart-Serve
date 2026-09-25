@@ -39,14 +39,18 @@ const Orders = ({ url }) => {
       }
     };
 
+    let refreshTimer;
     if (token) {
       fetchOrders();
+      refreshTimer = setInterval(fetchOrders, 2000);
     } else {
       toast.error('No token provided');
     }
 
     const storedViewedOrders = JSON.parse(localStorage.getItem('viewedOrders')) || [];
     setViewedOrders(new Set(storedViewedOrders));
+
+    return () => clearInterval(refreshTimer);
   }, [url]);
 
   const calculateTotalBill = (order) => {
@@ -176,7 +180,7 @@ const Orders = ({ url }) => {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
       doc.text(`Order Number: #${selectedOrder.orderNo}`, 20, 50);
-      doc.text(`User: ${selectedOrder.user}`, 20, 60);
+      doc.text(`User: ${selectedOrder.user?.fullName || selectedOrder.user?._id || selectedOrder.user}`, 20, 60);
       doc.text(`Status: ${selectedOrder.orderStatus}`, 20, 70);
       doc.text(`Restaurant ID: ${selectedOrder.restaurantId}`, 20, 80);
       doc.text(`Order Date: ${new Date(selectedOrder.createdAt).toLocaleDateString()}`, 20, 90);
@@ -260,7 +264,14 @@ const Orders = ({ url }) => {
           {[...currentOrders].reverse().map((order) => (
             <div className="order-card" key={order._id}>
               <div className="order-header">
-                <p><strong>User:</strong> {order.user}</p>
+                <p><strong>Order ID:</strong> {order._id}</p>
+                <p><strong>User ID:</strong> {order.user?._id || order.user}</p>
+                <p><strong>Name:</strong> {order.user?.fullName || 'Unknown'}</p>
+                <p><strong>Email:</strong> {order.user?.email || 'Not available'}</p>
+                <p><strong>Contact:</strong> {order.user?.phoneNumber || order.customerPhone || 'Not available'}</p>
+                <p><strong>Table:</strong> {order.tableNumber || 'Not specified'}</p>
+                <p><strong>Remark:</strong> {order.remarks || 'None'}</p>
+                <p><strong>Promo:</strong> {order.promoCode ? `${order.promoCode} (-₹${order.promoDiscount || 0})` : 'None'}</p>
                 <p><strong>Order No:</strong> {order.orderNo}</p>
                 <p><strong>Status:</strong> {order.orderStatus}</p>
                 <p><strong>Total Price:</strong> ₹{calculateTotalBill(order).toFixed(2)}</p>
@@ -346,7 +357,14 @@ const Orders = ({ url }) => {
             <div className="order-invoice">
               <div className="order-header">
                 <h3>Order #{selectedOrder.orderNo}</h3>
-                <p><strong>User:</strong> {selectedOrder.user}</p>
+                <p><strong>Order ID:</strong> {selectedOrder._id}</p>
+                <p><strong>User ID:</strong> {selectedOrder.user?._id || selectedOrder.user}</p>
+                <p><strong>Name:</strong> {selectedOrder.user?.fullName || 'Unknown'}</p>
+                <p><strong>Email:</strong> {selectedOrder.user?.email || 'Not available'}</p>
+                <p><strong>Contact:</strong> {selectedOrder.user?.phoneNumber || selectedOrder.customerPhone || 'Not available'}</p>
+                <p><strong>Table:</strong> {selectedOrder.tableNumber || 'Not specified'}</p>
+                <p><strong>Remark:</strong> {selectedOrder.remarks || 'None'}</p>
+                <p><strong>Promo:</strong> {selectedOrder.promoCode ? `${selectedOrder.promoCode} (-₹${selectedOrder.promoDiscount || 0})` : 'None'}</p>
                 <p><strong>Status:</strong> {selectedOrder.orderStatus}</p>
                 <p><strong>Restaurant ID:</strong> {selectedOrder.restaurantId}</p>
                 <p><strong>Order Date:</strong> {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>

@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useGetMenuByRestaurantIdQuery } from "../../../slices/menuApiSlice";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import "./RestaurantMenu.css";
 import { Button } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 import { addToCart, incrementQty, decrementQty } from "../../../slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { resolveFoodItemImage, getFoodFallbackByName } from "../../../utils/foodImageHelper";
+import LoginPage from "../../Loginc/LoginPage";
 
 const RestaurantMenu = () => {
   const { id } = useParams();
+  const location = useLocation();
   const [menuData, setMenuData] = useState([]);
   const {
     data,
@@ -17,7 +19,16 @@ const RestaurantMenu = () => {
     error: menuError,
   } = useGetMenuByRestaurantIdQuery(id);
   const cart = useSelector((state) => state.cart);
+  const { userInfo } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const isQrEntry = new URLSearchParams(location.search).get("qr") === "1";
+
+  useEffect(() => {
+    const tableNumber = new URLSearchParams(location.search).get("table");
+    if (tableNumber) {
+      localStorage.setItem("tableNumber", tableNumber);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     if (data?.data) {
@@ -67,6 +78,10 @@ const RestaurantMenu = () => {
   };
 
   const totalCartCount = cart.cartItems?.reduce((acc, i) => acc + (Number(i.qty) || 1), 0) || 0;
+
+  if (isQrEntry && !userInfo) {
+    return <LoginPage setShowLogin={() => {}} isProtectedPrompt />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-6 pb-28 min-h-screen relative">

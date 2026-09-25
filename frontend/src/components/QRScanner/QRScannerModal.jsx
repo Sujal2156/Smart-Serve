@@ -16,6 +16,7 @@ const QRScannerModal = ({ isOpen, onClose }) => {
   const { data: restaurantsData } = useGetRestaurantQuery();
   const restaurants = restaurantsData?.data?.restaurants || restaurantsData?.data || [];
   const [selectedRestaurantId, setSelectedRestaurantId] = useState("");
+  const tableOptions = Array.from({ length: 18 }, (_, index) => `Table ${index + 1}`);
 
   useEffect(() => {
     if (restaurants.length > 0 && !selectedRestaurantId) {
@@ -46,7 +47,7 @@ const QRScannerModal = ({ isOpen, onClose }) => {
     } else if (result.startsWith("http://") || result.startsWith("https://")) {
       try {
         const parsed = new URL(result);
-        navigate(parsed.pathname);
+        navigate(`${parsed.pathname}${parsed.search}`);
       } catch (e) {
         window.location.href = result;
       }
@@ -154,7 +155,7 @@ const QRScannerModal = ({ isOpen, onClose }) => {
       : networkHost || "10.110.82.231";
 
   const targetMenuUrl = currentRestaurant
-    ? `http://${activeHost}:5173/restaurant/${currentRestaurant._id}/menu`
+    ? `http://${activeHost}:5173/restaurant/${currentRestaurant._id}/menu?table=${encodeURIComponent(selectedTable)}&qr=1`
     : window.location.href;
 
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
@@ -312,7 +313,7 @@ const QRScannerModal = ({ isOpen, onClose }) => {
                       onChange={(e) => setSelectedTable(e.target.value)}
                       className="w-full text-xs font-bold p-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-500 outline-none text-gray-800 cursor-pointer"
                     >
-                      {["Table 1", "Table 2", "Table 4", "Table 5", "Table 8", "Table 12"].map((t) => (
+                      {tableOptions.map((t) => (
                         <option key={t} value={t}>
                           {t}
                         </option>
@@ -333,7 +334,7 @@ const QRScannerModal = ({ isOpen, onClose }) => {
                   <button
                     onClick={() => {
                       onClose();
-                      navigate(`/restaurant/${currentRestaurant?._id}/menu`);
+                      navigate(new URL(targetMenuUrl).pathname + new URL(targetMenuUrl).search);
                     }}
                     className="flex-1 py-2 px-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white text-xs font-bold rounded-xl shadow-md shadow-orange-500/20 transition-all flex items-center justify-center gap-1.5"
                   >

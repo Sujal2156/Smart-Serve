@@ -10,7 +10,9 @@ const Offer = ({ url }) => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [deletingOfferId, setDeletingOfferId] = useState(null);
   const [offerName, setOfferName] = useState('');
+  const [offerCode, setOfferCode] = useState('');
   const [offerDescription, setOfferDescription] = useState('');
+  const [discountAmount, setDiscountAmount] = useState('');
   const [offerImage, setOfferImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const offersPerPage = 3;
@@ -57,7 +59,9 @@ const Offer = ({ url }) => {
 
     const formData = new FormData();
     formData.append('offerName', offerName);
+    formData.append('offerCode', offerCode);
     formData.append('offerDescription', offerDescription);
+    formData.append('discountAmount', discountAmount);
     formData.append('offerImage', offerImage);
 
     const token = JSON.parse(localStorage.getItem('token'));
@@ -72,8 +76,10 @@ const Offer = ({ url }) => {
       });
       setOffers((prevOffers) => [...prevOffers, response.data.data]);
       setOfferName('');
+      setOfferCode('');
       setOfferDescription('');
       setOfferImage(null);
+      setDiscountAmount('');
     } catch (err) {
       alert('Failed to create offer');
     } finally {
@@ -106,6 +112,7 @@ const Offer = ({ url }) => {
                 <img src={offer.offerImage} alt={offer.offerName} className="offer-image" />
                 <div className="offer-info">
                   <h3>{offer.offerName}</h3>
+                  <p>Code: {offer.offerCode || 'Not set'} | Save ₹{offer.discountAmount || 0}</p>
                   <p>{offer.offerDescription}</p>
                 </div>
                 <button
@@ -143,6 +150,21 @@ const Offer = ({ url }) => {
           placeholder="Offer Name"
           value={offerName}
           onChange={(e) => setOfferName(e.target.value)}
+          required
+        />
+        <input
+          type="text"
+          placeholder="Promo Code (for example SAVE100)"
+          value={offerCode}
+          onChange={(e) => setOfferCode(e.target.value.toUpperCase())}
+          required
+        />
+        <input
+          type="number"
+          min="1"
+          placeholder="Discount amount in rupees"
+          value={discountAmount}
+          onChange={(e) => setDiscountAmount(e.target.value)}
           required
         />
         <textarea

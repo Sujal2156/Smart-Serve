@@ -12,6 +12,36 @@ const orderSchema = new Schema(
       required: true,
       ref: "Restaurant",
     },
+    tableNumber: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    remarks: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    promoCode: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      default: "",
+    },
+    promoOfferId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Offer",
+    },
+    promoDiscount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    customerPhone: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     orderNo: {
       type: String,
       required: true,

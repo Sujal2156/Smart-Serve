@@ -189,6 +189,7 @@ const seedData = async () => {
     const customer1 = await User.create({
       fullName: "Rahul Sharma",
       email: "customer@gmail.com",
+      phoneNumber: "+919876543210",
       password: "userpassword",
       isAdmin: false,
       isVerified: true,
@@ -197,6 +198,7 @@ const seedData = async () => {
     const customer2 = await User.create({
       fullName: "Priya Patel",
       email: "priya@gmail.com",
+      phoneNumber: "+919823456789",
       password: "userpassword",
       isAdmin: false,
       isVerified: true,
@@ -205,6 +207,7 @@ const seedData = async () => {
     const customer3 = await User.create({
       fullName: "Amit Verma",
       email: "amit@gmail.com",
+      phoneNumber: "+919834567890",
       password: "userpassword",
       isAdmin: false,
       isVerified: true,
@@ -758,18 +761,24 @@ const seedData = async () => {
       {
         restaurantId: bistroAmd._id,
         offerName: "WEEKEND25 - Flat 25% OFF",
+        offerCode: "WEEKEND25",
+        discountAmount: 250,
         offerDescription: "Enjoy 25% discount on all main course dishes and signature mocktails every Saturday & Sunday in Ahmedabad.",
         offerImage: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&auto=format&fit=crop",
       },
       {
         restaurantId: bistroAmd._id,
         offerName: "SWEETDEAL - Free Dessert",
+        offerCode: "SWEETDEAL",
+        discountAmount: 150,
         offerDescription: "Complimentary Sizzling Chocolate Brownie on all table orders above ₹999.",
         offerImage: "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&auto=format&fit=crop",
       },
       {
         restaurantId: pizzeriaGnr._id,
         offerName: "BOGO PIZZA TUESDAYS",
+        offerCode: "BOGOPIZZA",
+        discountAmount: 300,
         offerDescription: "Buy 1 Large Neapolitan Pizza and get another Gourmet Pizza completely free in Gandhinagar.",
         offerImage: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop",
       },

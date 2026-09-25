@@ -8,8 +8,16 @@ export const offerApiSlice = apiSlice.injectEndpoints({
               url: `${OFFER_URL}/${restaurantId}/offers`,
           }),
           keepUnusedDataFor: 5,
-      })
+          }),
+          validateOffer: builder.mutation({
+            query: ({ restaurantId, offerCode }) => ({
+              url: `${OFFER_URL}/${restaurantId}/offer/validate`,
+              method: "POST",
+              body: { offerCode },
+              credentials: "include",
+            }),
+          }),
     }),
   });
   
-  export const { useGetOfferByRestaurantIdQuery } = offerApiSlice;
+  export const { useGetOfferByRestaurantIdQuery, useValidateOfferMutation } = offerApiSlice;
