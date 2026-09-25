@@ -1,1 +1,1 @@
-export const DB_NAME = "quickBites"
+export const DB_NAME = "smartserve"
